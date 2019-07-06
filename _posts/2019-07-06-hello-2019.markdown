@@ -1,34 +1,27 @@
 ---
 layout:     post
-title:      "Hello 2015"
+title:      "Hello 2019"
 subtitle:   " \"Hello World, Hello Blog\""
-date:       2015-01-29 12:00:00
+date:       2019-07-06 12:00:00
 author:     "Doni Daniel"
 header-img: "img/post-bg-2015.jpg"
 catalog: true
 tags:
     - 生活
-    - Meta
 ---
 
 > “Yeah It's on. ”
 copy from hux's blog
 
-## 前言
+![可以跳过前言看正文](#build)
+
+ 前言
 
 Daniel 的 Blog 就这么开通了。
 
-[跳过废话，直接看技术实现 ](#build) 
+2019 年，Daniel总算有个地方可以好好写点东西了。
 
-
-
-2015 年，Hux 总算有个地方可以好好写点东西了。
-
-
-作为一个程序员， Blog 这种轮子要是挂在大众博客程序上就太没意思了。一是觉得大部分 Blog 服务都太丑，二是觉得不能随便定制不好玩。之前因为太懒没有折腾，结果就一直连个写 Blog 的地儿都没有。
-
-在玩了一段时间知乎之后，答题的快感又激起了我开博客的冲动。之前的[个人网站](http://huangxuan.me/portfolio)是作品集形式的（现在集成进来了），并不适合用来写博文，一不做二不休，花一天搞一个吧！
-
+总是想写一些东西，但是自己总是不用心或者感觉博客的平台都是别人的，自己不能定制（都知道的，总要开个VIP之类的）。在尝试着使用Markdown写东西后感觉，竟然还有这样的文本！一下子就激起了我写些东西的欲望，但是这些文件总是给自己写的，自己也最终会没时间看，查找也不是特别方便。偶然看到macdown 支持jeykll head，突然有了好奇心，时间也比较空闲，就找了一些资料。
 
 <p id = "build"></p>
 ---
