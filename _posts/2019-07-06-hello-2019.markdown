@@ -13,7 +13,7 @@ tags:
 > “Yeah It's on. ”
 copy from hux's blog
 
-![可以跳过前言看正文](#build)
+[可以跳过前言看正文](#build)
 
  前言
 
