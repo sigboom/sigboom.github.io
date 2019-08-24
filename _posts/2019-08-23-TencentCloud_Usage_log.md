@@ -36,5 +36,17 @@ ssh <username>@<public_IP>
 ||conda activate autosortsys||激活环境|
 |Django|pip install django||安装django|
 ||django-admin startproject autosortsys||创建工程|
-|Docker|sudo apt-get install docker|||
-|Apache|sudo apt-get install apache2|||
+|Docker|curl -fsSL https://get.docker.com \| sh||CentOS与Ubuntu通用|
+||systemctl start docker||systemctl status docker查看状态|
+||docker --version||19.03.1|
+||sudo docker ps [-a]||查看容器基本情况(默认为运行的容器)|
+||sudo docker stop \<container\_name\>||停止容器|
+||sudo docker rm \<container\_name\>||删除容器|
+||sudo docker rmi remove \<image\_name\>||删除镜像|
+|Apache|sudo docker run -dit --name \<container\_name\> -p \<server\_port\>:80 -v \<server\_path\>:/usr/local/apache2/htdocs/ httpd:2.4|端口\<server\_port\>-（重定向）->80|设置\<container\_name\>|
+|||\<server\_path>-（映射）->"/usr/local/apache2/htdocs/"|使用\<public\_IP\>:\<server\_port\>/\<file_name>访问|
+
+##简单命令
+|命令|参数|$1|意义|
+|---|---|---|---|
+|curl|icanhazip.com|public_IP|获取公网IP|
