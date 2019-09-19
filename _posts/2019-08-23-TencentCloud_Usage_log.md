@@ -1,5 +1,22 @@
 #学生云服务器使用记录
-##基本操作与配置（个人使用 mac iTerm2）
+##想法与步骤设计
+###基本材料列举
+1. ubuntu系统（腾讯云）
+2. Anaconda 进行Python版本控制
+3. docker 使用docker来创建管理维护web服务器
+	+ daniel-web 项目管理服务器
+	+ mysql-web 前期数据库服务器
+	+ redis-web 生产环境数据库服务器
+
+###项目搭建基本框架步骤(Docker)
+1. 搭建项目基本环境: 获取基本镜像（httpd）（mysql）（redis）
+	- 配置基本工具
+		- daniel-web(httpd) : python3.6.8 vim gcc 
+	- 制作v1镜像文件
+2. 搭建并运行HelloWorld
+3. 
+
+##基本操属性（个人使用 mac iTerm2）
 ###服务器属性
 |云平台|内核|内核版本|操作系统版本|版本号|
 |---|---|---|:-:|---|
@@ -38,6 +55,7 @@ ssh <username>@<public_IP>
 |ssl|sudo apt-get install openssl|||
 ||sudo apt-get install libssl-dev|||
 |Docker|curl -fsSL https://get.docker.com \| sh||CentOS与Ubuntu通用|
+|sysstat|sudo apt-get install sysstat||系统状态工具包
 
 ## docneaten 项目内部环境配置
 ###Anaconda 虚拟环境下配置
@@ -50,15 +68,10 @@ ssh <username>@<public_IP>
 ###Docker配置
 |配置内容|执行命令|执行操作内容|备注事项|
 |---|---|---|---|
-|Apache|sudo docker run -dit --name \<container\_name\> -p \<server\_port\>:80 -v \<server\_path\>:/usr/local/apache2/htdocs/ httpd|端口\<server\_port\>-（重定向）->80|设置\<container\_name\>|
-|||\<server\_path>-（挂载）->"/usr/local/apache2/htdocs/"|使用\<public\_IP\>:\<server\_port\>/\<file_name>访问|
-|Mysql|docker run --name \<container\_name\> -p \<server\_port\>:3306 -v \<server\_path\>:/var/lib/mysql -e MYSQL_ROOT_PASSWORD=\<password\> -d mysql/mysql-server:5.7|端口\<server\_port\>-（重定向）->80|设置密码\<password\>|
-|||\<server\_path>-（挂载）->"/var/lib/mysql"|\<server\_path\>必须是绝对路径|
-||chcon -Rt svirt\_sandbox\_file\_t \<server\_path\>||读写目录有冲突时使用|
-||docker exec -it \<container\_name\> mysql -uroot -p\<password\>|输入sql命令|接入容器|
-||mysql -h\<IP\> -p --port=\<server\_port\> -u\<user\_name\> -p|\<password\>|注意添加开启的container端口|
+|Apache|sudo docker run -d --name daniel-web -p 8080:80 -v /home/docneaten/:/home/docneaten/ httpd|创建apache容器|-d 在后台运行|
+|Mysql|sudo docker run --name mysql-web -p 3307:3306 -v /home/mysqldata:/home/mysqldata -e MYSQL_ROOT_PASSWORD=6940588666035 -d mysql/mysql-server:5.7|创建mysql容器|
+|redis|docker run -d --name redis-web -p 6379:6379 redis --requirepass "6940588666035"|创建redis容器|
 |Django|sudo docker pull library/django:1.10.4-python3||
-|~~yum~~|~~sudo apt-get install yum~~||Ubuntu 14.0+不支持yum(未配置源)|
 |ssl|docker cp \<ssl\_files\_path\> \<container\_name\>:\<apache2\_path\>/cert/||将ssl的cert文件放到apache目录下
 ||sudo docker exec -it daniel-web /bin/bash||进入container|
 ||vim /user/local/apache2/conf/httpd.conf|/ssl 去掉注释(0 x)|添加ssl模块(确认LoadModule \*/mod_ssl.so)|
@@ -68,6 +81,33 @@ ssh <username>@<public_IP>
 ||apachectl restart||重启服务？？？|
 |docker-compose|sudo curl -L "https://github.com/docker/compose/releases/download/1.24.1/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose|
 ||chmod +x /usr/local/bin/docker-compose|
+
+####daniel-web虚拟机配置\<httpd:latest\>
+|配置内容|执行命令|执行操作内容|备注事项|
+|---|---|---|---|
+|apt-get|apt-get update|apt-get -y upgrade|
+||apt-get install wget||安装wget|
+||apt-get install vim|mv /home/.../.vimrc ~/|从服务器拷贝.vimrc文件|
+||apt-get install gcc make||安装python的前导包
+||apt-get install build-essential libncursesw5-dev libssl-dev libgdbm-dev libc6-dev libsqlite3-dev tk-dev||安装python的前导包
+||apt-get install libreadline-dev||解决在python3命令行交互模式下上下左右键，屏幕上会打印字符|
+||apt-get install libapache2-mod-wsgi-py3||实现apache与django的连接
+|python3|tar -zxvf 4.5.15.tar.gz|
+||./configure && make && make install|
+||ln -s /usr/local/bin/python3 /usr/local/bin/python||制作软连接|
+||ln -s /usr/local/bin/pip3 /usr/local/bin/pip||制作软连接|
+|pip|pip install --upgrade pip||更新pip|
+||pip install django|
+||pip install pymysql|
+|mod_swgi.so|确保存在该文件|ls /usr/local/apache2/modules/ \| grep swgi.so|没有需要下载|
+||vim /usr/local/apache2/conf/httpd.conf|(200G o) LoadModule wsgi_module modules/mod_swgi.so|
+||vim /home/docneaten/docneaten/wsgi.py|import sys<br>sys.path.append('/usr/local/lib/python3.6/site-packages')<br>curPath = os.path.abspath(os.path.dirname(__file__))<br>rootPath = os.path.split(curPath)[0]<br>sys.path.append(rootPath)|导入django与该项目的路径|
+||vim /home/docneaten/docneaten/setting.py|ALLOWED_HOSTS = ['*']|修改并允许所有主机进行访问|
+
+||vim /etc/apache2/apache2.conf|(G o) ServerName localhost:80<br>WSGIPythonPath /var/www/botmail<br>WSGIPythonHome \<python_path>||
+||cd mods-enabled/|
+||vim wsgi_module.load|LoadModule wsgi_module /usr/lib/apache2/modules/mod_wsgi.so|
+
 
 ###django-web虚拟机配置\<django-web_image:v2>
 |配置内容|执行命令|执行操作内容|备注事项|
@@ -96,53 +136,46 @@ ssh <username>@<public_IP>
 ||python manage.py migrate|
 ||python manage.py runserver|
 
-###daniel-web虚拟机配置\<ubuntu\>
-|配置内容|执行命令|执行操作内容|备注事项|
-|---|---|---|---|
-|apt-get|apt-get install curl||apt-get update|
-||apt-get install -y apache2||
-||apt-get install python3-pip||
-||apt-get install wget|
-||apt-get install httpd-devel|
-|pip3|pip3 install django|
-||pip3 install pymysql|
-|mod_wsgi|apt-get install apache2-dev|
-||wget https://github.com/GrahamDumpleton/mod_wsgi/archive/4.5.15.tar.gz|
-||tar -zxvf 4.5.15.tar.gz|
-||./configure --with-python=\<python_path>|
-||make && make install|
-|apache2|service apache2 start|
-||service apache2 status|
-||service apache2 stop|
-||vim /etc/apache2/apache2.conf|(G o) ServerName localhost:80<br>WSGIPythonPath /var/www/botmail<br>WSGIPythonHome \<python_path>||
-||cd mods-enabled/|
-||vim wsgi_module.load|LoadModule wsgi_module /usr/lib/apache2/modules/mod_wsgi.so|
 
-
-##网络命令
-|命令|参数|$1|意义|
+##系统命令
+###系统控制
+|命令|参数|参数意义|命令意义|
 |---|---|---|---|
-|curl|icanhazip.com|public_IP|获取公网IP|
+|reboot|||重启服务器|
+|htop|||查看系统情况|
+|systemctl|start docker||开启docker服务|
+||status docker||查看状态|
+|apachectl|start\|restart\|stop||开启\|重启\|停止Apache服务|
+
+###网络命令
+|命令|参数|参数意义|命令意义|
+|---|---|---|---|
+|curl|icanhazip.com|访问特定网址|获取公网IP|
 
 ##Docker命令
-|命令|意义|
-|---|---|
-|systemctl start docker|开启docker服务|
-|systemctl status docker|查看状态|
-|docker --version|19.03.1|
-|docker run|
-|docker rename \<container\_name> \<new\_container\_name>|容器重命名|
-|docker ps [-a]|查看容器基本情况(默认为运行的容器)|
-|docker start\|restart\|stop\rm \<container\>|启动\|重启\|停止\|删除 容器|
-|docker rmi \<image\_name\>||删除镜像|
-|docker exec -it \<container\_name\> /bin/bash||登录container，并进入bash|
-|docker commit -m "\<commit\_msg>" -a "\<author>" \<container\> \<new_image>||从容器创建镜像|
+|命令|参数|参数意义|命令意义|
+|---|---|---|---|
+|docker|--version||查看docker版本|
+|run \<image\_name>|-dit \| -d|在后台运行|从镜像启动容器|
+||--name \<container\_name\>|命名容器|
+||-p \<server\_port\>:\<container\_port\>|定义端口映射|
+||-v \<server\_path\>:\<container\_path\>|定义挂载映射|
+|search \<image\_name\>|||查找镜像文件|
+|pull \<image\_name>|||拉取镜像文件|
+|rename \<container\_name> \<new\_container\_name>|||容器重命名|
+|ps |-a|查看所有状态|查看容器基本情况(默认为运行的容器)|
+|start \| restart \| stop \| rm \<container\>|||启动\|重启\|停止\|删除 容器|
+|rmi \<image\_name\>||删除镜像|
+|exec \<container\_name\> \<order\>|-it|以终端方式运行|在container中运行命令|
+|commit \<container\> \<new\_image>|-m "\<commit\_msg>"|提交标签|从容器创建镜像|
+|| -a "\<author>"  |标记创建者||
 
 
 ##mysql命令
 |级别|类别|命令|辅助命令|目的|
 |:-:|---|---|---|---|
-|系统|用户|grant all privileges on \*.\* to '\<user\_name>'@'\<IP\>' identified by '\<password\>' with grant option;|flush privileges;|添加\<user\_name\>允许\<IP\>以\<password\>登录|
+|系统|登录|mysql -h\<IP\> --port=\<server\_port\> -u\<user\_name> -p||登录数据库|
+|权限|用户管理|grant all privileges on \*.\* to '\<user\_name>'@'\<IP\>' identified by '\<password\>' with grant option;|flush privileges;|添加\<user\_name\>允许\<IP\>以\<password\>登录|
 |||drop user zhangsan@'[% \<IP\>]';||删除用户|
 ||数据库|show databases;||打印数据库|
 |数据库|表|show tables;||打印表格信息|
