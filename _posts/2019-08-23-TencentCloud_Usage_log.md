@@ -101,7 +101,7 @@ tags:
 ||~~sudo cnpm install -g vue-cli~~||失败|
 ||npm install -g @vue/cli|
 
-## docneaten 项目内部环境配置
+## autosort 项目内部环境配置
 ###Anaconda 虚拟环境下配置
 |配置内容|执行命令|路径|备注事项|
 |---|---|---|---|
@@ -112,7 +112,7 @@ tags:
 ###Docker配置
 |配置内容|执行命令|执行操作内容|备注事项|
 |---|---|---|---|
-|Apache|sudo docker run -d --name daniel-web -p 8080:80 -v /home/docneaten/:/home/docneaten/ httpd|创建apache容器|-d 在后台运行|
+|Apache|sudo docker run -d --name apache-django -p -v /home/daniel/Apache-Django/autosort/:/autosort/ httpd|创建apache容器|-d 在后台运行|
 |Mysql|sudo docker run --name mysql-web -p 3307:3306 -v /home/mysqldata:/home/mysqldata -e MYSQL_ROOT_PASSWORD=6940588666035 -d mysql/mysql-server:5.7|创建mysql容器|
 |redis|docker run -d --name redis-web -p 6379:6379 redis --requirepass "6940588666035"|创建redis容器|
 |Django|sudo docker pull library/django:1.10.4-python3||
@@ -134,62 +134,7 @@ tags:
 ||docker network connect daniel-net daniel-web||将daniel-web连入网络|
 ||docker network disconnect bridge daniel-web||将daniel-web断开网络|
 
-####daniel-web虚拟机配置\<httpd:latest\>
-|配置内容|执行命令|执行操作内容|备注事项|
-|---|---|---|---|
-|apt-get|apt-get update|apt-get -y upgrade|
-||apt-get install wget||安装wget|
-||apt-get install vim|mv /home/.../.vimrc ~/|从服务器拷贝.vimrc文件|
-||apt-get install gcc make||安装python的前导包
-||apt-get install build-essential libncursesw5-dev libssl-dev libgdbm-dev libc6-dev libsqlite3-dev tk-dev||安装python的前导包
-||apt-get install libreadline-dev||解决在python3命令行交互模式下上下左右键，屏幕上会打印字符|
-||apt-get install libapache2-mod-wsgi-py3||实现apache与django的连接
-|python3|tar -zxvf 4.5.15.tar.gz|
-||./configure && make && make install|
-||ln -s /usr/local/bin/python3 /usr/local/bin/python||制作软连接|
-||ln -s /usr/local/bin/pip3 /usr/local/bin/pip||制作软连接|
-|pip|pip install --upgrade pip||更新pip|
-||pip install django|
-||pip install pymysql|
-|mod_swgi.so|确保存在该文件|ls /usr/local/apache2/modules/ \| grep swgi.so|没有需要下载|
-||vim /usr/local/apache2/conf/httpd.conf|(200G o) LoadModule wsgi_module modules/mod_swgi.so|
-||vim /home/docneaten/docneaten/wsgi.py|import sys<br>sys.path.append('/usr/local/lib/python3.6/site-packages')<br>curPath = os.path.abspath(os.path.dirname(__file__))<br>rootPath = os.path.split(curPath)[0]<br>sys.path.append(rootPath)|导入django与该项目的路径|
-||vim /home/docneaten/docneaten/setting.py|ALLOWED_HOSTS = ['*']|修改并允许所有主机进行访问|
-
-||vim /etc/apache2/apache2.conf|(G o) ServerName localhost:80<br>WSGIPythonPath /var/www/botmail<br>WSGIPythonHome \<python_path>||
-||cd mods-enabled/|
-||vim wsgi_module.load|LoadModule wsgi_module /usr/lib/apache2/modules/mod_wsgi.so|
-
-
-###django-web虚拟机配置\<django-web_image:v2>
-|配置内容|执行命令|执行操作内容|备注事项|
-|---|---|---|---|
-|curl|apt-get install curl|
-|git|apt-get install git|
-|xz|官网下载||
-||tar -jxvf xz.tar.bz2|
-||./config --prefix=/opt/gnu/xz|生成Makefile|
-||make|
-||make install|
-||vim ~/.bashrc|export PATH=/opt/gnu/xz/bin/:$PATH$|导入路径|
-|pyenv|curl -L https://github.com/pyenv/pyenv-installer/raw/master/bin/pyenv-installer \| bash|
-||curl -O https://www.python.org/ftp/python/3.6.4/Python-3.6.4.tar.xz|
-||mkdir ~/.pyenv/cache||
-||mv Python-3.6.4.tar.xz ~/.pyenv/cache/|
-||vim ~/.pyenv/plugins/python-build/share/python-build/3.6.4|if has\_tar\_xz\_support; then<br>&nbsp;&nbsp;&nbsp;&nbsp;install\_package "Python-3.6.4" "/root/.pyenv/cache/Python-3.6.4.tar.xz" ldflags_dirs standard verify_py36 copy_python_gdb ensurepip<br>else ...|注意安装依赖|
-||pyenv install 3.6.4||
-|pip|pip install --upgrade pip|更新pip版本
-|django|./pip install django==2.1.7||/usr/local/bin|
-|mysql|pip install pymysql|
-||vim \_\_init\_\_.py|import pymysql<br>pymysql.install\_as\_MySQLdb()|
-||vim ~/.pyenv/versions/3.6.4/lib/python3.6/site-packages/django/db/backends/mysql/base.py|#if version < (1, 3, 13):<br>#    raise ImproperlyConfigured('mysqlclient 1.3.13 or newer is required; you have %s.' % Database.\_\_version\_\_)|
-||vim ~/.pyenv/versions/3.6.4/lib/python3.6/site-packages/django/db/backends/mysql/operations.py|decode -> encode|
-|django|python manage.py makemigrations|
-||python manage.py migrate|
-||python manage.py runserver|
-
-
-###vue-nginx搭建
+####vue-nginx搭建
 1. 构建vue项目(参考vue命令)，将vue项目通过npm run build 打包
 2. cp -r dist ..
 3. 创建nginx.conf
@@ -278,10 +223,173 @@ tags:
 
 5. cd .. && docker build -t vue:V1.0.0 .
 6. sudo docker run -p 8849:80 -d --name vue-nginx vue:V1.0.0
+7. docker network connect --ip 172.25.0.3 daniel-net vue-nginx
 
-####以上命令已封装到 deploy.sh
+#####以上命令已封装到 deploy.sh
 
+####Apache-Django虚拟机配置\<httpd:latest\>
+1. 封装制作一级镜像[apache-django:BASE | REBASE]
+	<table>
+		<tr align=center>
+			<th colspan=10>基础镜像httpd:latest</th>
+		</tr><tr>
+			<th>配置内容</th><th>执行命令</th>
+		</tr><tr>
+			<td>更新apt-get</td><td>apt-get -y upgrade && apt-get update</td>
+		</tr><tr>
+			<td rowspan=4>python3前导包</td><td>apt-get install -y wgte gcc make build-essential</td>
+		</tr><tr>
+			<td>apt-get install -y  libncursesw5-dev libssl-dev </td>
+		</tr><tr>
+			<td>apt-get install -y libgdbm-dev libc6-dev libsqlite3-dev</td>
+		</tr><tr>
+			<td>apt-get install -y tk-dev libreadline-dev</td>
+		</tr><tr align=center>
+			<td>apache链接django包</td><td>apt-get install -y libapache2-mod-wsgi-py3</td>
+		</tr><tr align=center>
+			<td rowspan=6>安装python3</td><td>wget https://www.python.org/ftp/python/3.6.8/Python-3.6.8.tar.xz</td>
+		</tr><tr>
+			<td>tar xvf Python-3.6.8.tar.xz && cd Python-3.6.8</td>
+		</tr><tr>
+			<td>./configure && make && make install</td>
+		</tr><tr>
+			<td>rm -rf Python-3.6.8*</td>
+		</tr><tr>
+			<td>ln -s /usr/local/bin/python3 /usr/local/bin/python</td>
+		</tr><tr>
+			<td>ln -s /usr/local/bin/pip3 /usr/local/bin/pip</td>
+		</tr><tr>
+			<td rowspan=2>pip安装django</td><td>pip install --upgrade pip</td>
+		</tr><tr>
+			<td>pip install django pymysql</td>
+		</tr><tr>
+			<td>获取mod\_wsgi.so</td><td>cp mod_wsgi.so /usr/local/apache2/modules/</td>
+		</tr><tr align=center>
+			<th colspan=10>生成镜像apache-django:BASE</th>
+		</tr>
+	</table>
+
+2. 制作Dockerfile
 	
+	```Dockerfile
+	FROM apache-django:BASE
+	MANTAINER "daniel <sigboom@163.com>"
+	COPY httpd.conf /usr/local/apache2/conf/
+	COPY autosort.conf /usr/local/apache2/conf/extra/
+	```
+	
+	1. httpd.conf与autosort.conf配置<br>
+		httpd.conf修改内容
+		
+		```sh
+		# 200行添加
+		LoadModule wsgi\_module modules/mod_swgi.so
+		
+		#末尾添加
+		ServerName 172.25.0.4:80
+		include conf/extra/autosort.conf
+		```
+		autosort.conf
+		
+		```sh
+		WSGISocketPrefix /var/run/wsgi
+		<VirtualHost *:80>
+			# ServerName sigboom.cn:80   
+			# RewriteEngine On
+			# RewriteRule ^/(d-media|media|examples|screenshots)($|(\/(.*))) /app/project/$0 [L]
+	
+			DocumentRoot /autosort
+			DirectoryIndex html/index.html
+	
+			WSGIScriptAlias / /autosort/autosort/wsgi.py
+			<Directory /autosort/autosort>
+				<Files wsgi.py>
+					Require all granted
+				</Files>
+				AllowOverride none
+				Require all denied
+			</Directory>
+			Alias /static/ /autosort/static/  
+			<Directory /autosort/static>
+				Require all granted
+			</Directory>
+			
+			<Directory /autosort/>
+				Order Allow,Deny   
+				allow From All  
+				Options Indexes FollowSymLinks
+			</Directory>
+		
+			WSGIProcessGroup autosort
+			WSGIApplicationGroup %{GLOBAL}
+			#如果存在虚拟环境
+			#	WSGIDaemonProcess autosort python-path=/usr/local/lib:/usr/local/bin 
+			WSGIDaemonProcess autosort 
+			CustomLog /autosort/logs/access.log combined
+			ErrorLog /autosort/logs/error.log
+		</VirtualHost>
+		```
+	2. 修改配置autosort/autosort/wsgi.py
+		
+		```py
+		import sys
+		sys.path.append('/usr/local/lib/python3.6/site-packages')
+		curPath = os.path.abspath(os.path.dirname(__file__))
+		rootPath = os.path.split(curPath)[0]
+		sys.path.append(rootPath)
+		```
+	3. 修改autosort/autosort/setting.py
+		
+		```py
+		# 允许所有主机进行访问
+		ALLOWED_HOSTS = ['*']
+		```
+	4. 创建配置的相关文件夹
+		
+		```sh
+		mkdir static
+		mkdir logs
+		python manage.py startapp data
+		```
+	
+3. 封装deploy.sh
+	
+	```sh
+	container=apache-django
+	image=django
+	path=/home/daniel/Apache-Django
+
+	if [ ! -n "$1" ];then
+		echo project need a tag.
+	else
+		running=`docker ps | grep $container`
+		exist=`docker ps -a | grep $container`
+		if [ "$running" ]; then
+			docker stop $container && docker rm $container 
+		elif [ "$exist" ];then
+			docker rm $container
+		fi
+		old=`docker images | grep $image | grep $1`
+		if [ "$old" ];then
+			docker rmi $image:$1
+		fi
+		docker build -t $image:$1 .
+		docker run --name $container --net daniel-net --ip 172.25.0.4 -v $path/autosort:/autosort -d $image:$1
+	fi
+	```
+
+###django-web虚拟机配置\<django-web_image:v2>
+|配置内容|执行命令|执行操作内容|备注事项|
+|---|---|---|---|
+|mysql|pip install pymysql|
+||vim \_\_init\_\_.py|import pymysql<br>pymysql.install\_as\_MySQLdb()|
+||vim ~/.pyenv/versions/3.6.4/lib/python3.6/site-packages/django/db/backends/mysql/base.py|#if version < (1, 3, 13):<br>#    raise ImproperlyConfigured('mysqlclient 1.3.13 or newer is required; you have %s.' % Database.\_\_version\_\_)|
+||vim ~/.pyenv/versions/3.6.4/lib/python3.6/site-packages/django/db/backends/mysql/operations.py|decode -> encode|
+|django|python manage.py makemigrations|
+||python manage.py migrate|
+||python manage.py runserver|
+
+
 ##命令使用
 ###本地命令
 <table>
@@ -372,7 +480,7 @@ tags:
 
 </table>
 
-###mysql命令
+####mysql命令
 |级别|类别|命令|辅助命令|目的|
 |:-:|---|---|---|---|
 |系统|登录|mysql -h\<IP\> --port=\<server\_port\> -u\<user\_name> -p||登录数据库|
@@ -383,26 +491,26 @@ tags:
 |表|查询|show columns from \<table\_name\>；||打印表头信息|
 |||select \<key\_name\> \<alias\>, \<key\_name\> from \<table\_name\> where \<condition\>||打印表内信息|
 
-###pyenv命令
+####pyenv命令
 |命令|意义|
 |---|---|
 |pyenv global 3.6.4|切换当前系统环境|
 
-###conda命令
+####Anaconda命令
 |命令|意义|
 |---|---|
 |conda create -n \<env\_name\> python=\<version\_num\>|python版本控制|
 |conda activate autosortsys|激活环境|
 |conda remove -n \<env\_name\> --all|删除环境|
 
-##django命令
+####django命令
 |命令|意义|路径要求|
 |---|---|---|
 |django-admin startproject \<pro\_name\>|创建一个django工程|
 |python manage.py runserver \<host\_ip\>:\<host\_port\>|开启简易web程序|工程目录下|
 |python manage.py startapp app_name|在工程目录下创建app|工程目录下|
 
-##vue命令
+####vue命令
 |命令|意义|备注|
 |---|---|---|
 |sudo vue init webpack <pro_name>|创建vue项目|
