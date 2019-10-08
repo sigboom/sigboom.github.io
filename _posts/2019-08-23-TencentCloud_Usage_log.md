@@ -1,32 +1,78 @@
-#学生云服务器使用记录
-##想法与步骤设计
-###基本材料列举
-1. ubuntu系统（腾讯云）
-2. Anaconda 进行Python版本控制
-3. docker 使用docker来创建管理维护web服务器
-	+ daniel-web 项目管理服务器
-	+ mysql-web 前期数据库服务器
-	+ redis-web 生产环境数据库服务器
+---
+layout:     post
+title:      "云服务器搭建记录"
+subtitle:   "try my best to face problem."
+date:       2019-09-30 01:00:00
+author:     "Doni Daniel"
+header-img: "img/post-bg-rwd.jpg"
+catalog: true
+tags:
+    - 技术
+    - 服务器
+---
 
-###项目搭建基本框架步骤(Docker)
-1. 搭建项目基本环境: 获取基本镜像（httpd）（mysql）（redis）
-	- 配置基本工具
-		- daniel-web(httpd) : python3.6.8 vim gcc 
-	- 制作v1镜像文件
-2. 搭建并运行HelloWorld
-3. 
 
-##基本操属性（个人使用 mac iTerm2）
-###服务器属性
-|云平台|内核|内核版本|操作系统版本|版本号|
-|---|---|---|:-:|---|
-|腾讯云|GNU/Linux|4.15.0-54-generic x86_64|Ubuntu|18.04.1|
-###登录服务器
-```sh
-ssh <username>@<public_IP>
-<初始密码>
-```
+##框架与步骤设计
+###物理与开发环境
+<table>
+	<tr>
+		<th>配置种类</th><th>基础配置</th><th colspan=10>详细信息</th>
+	</tr><tr align="center">
+		<th rowspan=1>物理配置</th><td rowspan=1>腾讯云服务器</td>
+		<td>1核</td><td>2G内存</td><td>50G云硬盘</td><td>1Mbps带宽</td>
+	</tr><tr align="center">
+		<th>操作系统</th><td>Ubuntu Server</td>
+		<td>18.04.1 LTS</td><td>GNU/Linux</td><td>4.15.0-54-generic</td><td>x86_64</td>
+	</tr>
+</table>
+
+###docker框架
+<table>
+	<tr>
+		<td><b>Vue-Nginx 前端管理服务器</b>
+			<table>
+				<tr align=center><th>前端框架</th><th>静态页面处理</th>
+				</tr><tr align="center"><td>Vue</td><td>Nginx</td>
+				</tr>
+			</table>
+		</th>
+		<td><b>Apache-Django 后台管理服务器</b>
+			<table>
+				<tr><th>动态部署</th><th>页面生成</th>
+				</tr><tr><td>Apache</td><td>Django</td>
+				</tr>
+			</table>
+		</td>
+		<td><b>Mysql-Redis 数据库管理服务器</b>
+			<table>
+				<tr><th>快速缓存</th><th>主存</th>
+				</tr><tr><td>Redis</td><td>Mysql</td>
+				</tr>
+			</table>
+		</td>
+	</tr>
+</table>
+
+###项目搭建基本框架步骤
+####搭建Vue-Nginx服务器
+1. 搭建Nginx服务器，实现简单页面浏览
+2. 加入vue框架，并简单使用已经有的模板
+3. 配置动静分离，将动态请求转至Apache-Django服务器(暂时实现/data的反向代理)
+
+####搭建Apache-Django服务器
+1. 搭建Apache服务器，将Django部署
+
+####搭建Mysql-Redis服务器
+
 ##基本个人环境配置
+###服务器编辑环境配置
+|配置内容|执行命令|执行操作内容|备注事项|
+|---|---|---|---|
+|vim|apt-get install vim|\<确认\>|如无法下载, apt-get update|
+||wget  http://files.cnblogs.com/ma6174/vimrc.zip||ma6174的主题|
+||unzip vimrc.zip||使用ls -a进行查看.vimrc文件|
+||vim ~/.vimrc|打开syntax on<br>修改新标题文件补全|具体配置根据个人情况进行配置|
+
 ###服务器用户配置
 |配置内容|执行命令|执行操作内容|备注事项|
 |:-:|---|---|---|
@@ -36,13 +82,6 @@ ssh <username>@<public_IP>
 ||sudo vim /etc/hosts|\<old_hostname\> => \<new_hostname\>|
 ||sudo reboot||可以执行exit,重新连接|
 
-###服务器编辑环境配置
-|配置内容|执行命令|执行操作内容|备注事项|
-|---|---|---|---|
-|vim|apt-get install vim|\<确认\>|如无法下载, apt-get update|
-||wget  http://files.cnblogs.com/ma6174/vimrc.zip||ma6174的主题|
-||unzip vimrc.zip||使用ls -a进行查看.vimrc文件|
-||vim ~/.vimrc|打开syntax on<br>修改新标题文件补全|具体配置根据个人情况进行配置|
 
 ##开发环境配置
 ###本机配置
@@ -56,6 +95,11 @@ ssh <username>@<public_IP>
 ||sudo apt-get install libssl-dev|||
 |Docker|curl -fsSL https://get.docker.com \| sh||CentOS与Ubuntu通用|
 |sysstat|sudo apt-get install sysstat||系统状态工具包
+|vue|sudo apt install nodejs|
+||sudo apt install npm|
+||sudo npm install -g cnpm --registry=https://registry.npm.taobao.org|
+||~~sudo cnpm install -g vue-cli~~||失败|
+||npm install -g @vue/cli|
 
 ## docneaten 项目内部环境配置
 ###Anaconda 虚拟环境下配置
@@ -81,6 +125,14 @@ ssh <username>@<public_IP>
 ||apachectl restart||重启服务？？？|
 |docker-compose|sudo curl -L "https://github.com/docker/compose/releases/download/1.24.1/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose|
 ||chmod +x /usr/local/bin/docker-compose|
+
+####network配置daniel-net
+|配置内容|执行命令|执行操作内容|描述|
+|---|---|---|---|
+|network|docker network create -d bridge --subnet 172.25.0.0/16 daniel-net||创建网络|
+||docker network connect daniel-net vue-nginx||将vue-nginx连入网络|
+||docker network connect daniel-net daniel-web||将daniel-web连入网络|
+||docker network disconnect bridge daniel-web||将daniel-web断开网络|
 
 ####daniel-web虚拟机配置\<httpd:latest\>
 |配置内容|执行命令|执行操作内容|备注事项|
@@ -137,8 +189,114 @@ ssh <username>@<public_IP>
 ||python manage.py runserver|
 
 
-##系统命令
-###系统控制
+###vue-nginx搭建
+1. 构建vue项目(参考vue命令)，将vue项目通过npm run build 打包
+2. cp -r dist ..
+3. 创建nginx.conf
+	
+	```nginx
+	worker_processes auto;
+	#error_log  logs/error.log;
+	#error_log  logs/error.log  notice;
+	#error_log  logs/error.log  info;
+	#pid        logs/nginx.pid;
+	events {
+    	worker_connections  1024;
+	}
+	http {
+    	include       mime.types;
+    	default_type  application/octet-stream;
+    	#log_format  main  '$remote_addr - $remote_user [$time_local] "$request" '
+    	#                  '$status $body_bytes_sent "$http_referer" '
+    	#                  '"$http_user_agent" "$http_x_forwarded_for"';
+    	#access_log  logs/access.log  main;
+    	sendfile        on;
+    	#tcp_nopush     on;
+    	#keepalive_timeout  0;
+   		keepalive_timeout  65;
+    	#gzip  on;
+    	client_max_body_size   20m;
+    	server {
+        	listen       80;
+        	server_name  www.longdb.com;# 这里换域名
+        	#charset koi8-r;
+        	#access_log  logs/host.access.log  main;
+     	location / {
+        	root   /usr/share/nginx/html;
+        	index  index.html index.htm;
+        	try_files $uri $uri/ /index.html;
+        	}
+        	#error_page  404              /404.html;
+        	# redirect server error pages to the static page /50x.html
+        	#
+        	error_page   500 502 503 504  /50x.html;
+        	location = /50x.html {
+            	root   html;
+        	}
+        	# proxy the PHP scripts to Apache listening on 127.0.0.1:80
+        	#
+        	#location ~ \.php$ {
+        	#    proxy_pass   http://127.0.0.1;
+        	#}
+        	# pass the PHP scripts to FastCGI server listening on 127.0.0.1:9000
+        	#
+        	#location ~ \.php$ {
+        	#    root           html;
+        	#    fastcgi_pass   127.0.0.1:9000;
+        	#    fastcgi_index  index.php;
+        	#    fastcgi_param  SCRIPT_FILENAME  /scripts$fastcgi_script_name;
+        	#    include        fastcgi_params;
+        	#}
+        	# deny access to .htaccess files, if Apache's document root
+        	# concurs with nginx's one
+        	#
+        	#location ~ /\.ht {
+        	#    deny  all;
+        	#}
+    	}
+    	# another virtual host using mix of IP-, name-, and port-based configuration
+    	#
+    	#server {
+    	#    listen       8000;
+    	#    listen       somename:8080;
+    	#    server_name  somename  alias  another.alias;
+    	#    location / {
+    	#        root   html;
+    	#        index  index.html index.htm;
+    	#    }
+    	#}
+	}
+	```
+4. 创建Dockerfile
+	
+	> FROM nginx <br>
+	> MAINTAINER longdb <br>
+	> \# 将dist文件中的内容复制到 /usr/share/nginx/html/ 这个目录下面<br>
+	> COPY dist/  /usr/share/nginx/html/ <br>
+	> COPY nginx.conf /etc/nginx/nginx.conf <br>
+	> RUN echo 'echo init ok!!'
+
+5. cd .. && docker build -t vue:V1.0.0 .
+6. sudo docker run -p 8849:80 -d --name vue-nginx vue:V1.0.0
+
+####以上命令已封装到 deploy.sh
+
+	
+##命令使用
+###本地命令
+<table>
+	<tr>
+		<th>实现功能</th>
+		<th>命令</th>
+	</tr>
+	<tr>
+		<td>登录远程服务器</td>
+		<td><code>ssh ${username}@${public_IP}</code></td>
+	</tr>
+</table>
+
+###服务端命令
+####系统命令
 |命令|参数|参数意义|命令意义|
 |---|---|---|---|
 |reboot|||重启服务器|
@@ -146,32 +304,75 @@ ssh <username>@<public_IP>
 |systemctl|start docker||开启docker服务|
 ||status docker||查看状态|
 |apachectl|start\|restart\|stop||开启\|重启\|停止Apache服务|
-
-###网络命令
-|命令|参数|参数意义|命令意义|
-|---|---|---|---|
 |curl|icanhazip.com|访问特定网址|获取公网IP|
 
-##Docker命令
-|命令|参数|参数意义|命令意义|
-|---|---|---|---|
-|docker|--version||查看docker版本|
-|run \<image\_name>|-dit \| -d|在后台运行|从镜像启动容器|
-||--name \<container\_name\>|命名容器|
-||-p \<server\_port\>:\<container\_port\>|定义端口映射|
-||-v \<server\_path\>:\<container\_path\>|定义挂载映射|
-|search \<image\_name\>|||查找镜像文件|
-|pull \<image\_name>|||拉取镜像文件|
-|rename \<container\_name> \<new\_container\_name>|||容器重命名|
-|ps |-a|查看所有状态|查看容器基本情况(默认为运行的容器)|
-|start \| restart \| stop \| rm \<container\>|||启动\|重启\|停止\|删除 容器|
-|rmi \<image\_name\>||删除镜像|
-|exec \<container\_name\> \<order\>|-it|以终端方式运行|在container中运行命令|
-|commit \<container\> \<new\_image>|-m "\<commit\_msg>"|提交标签|从容器创建镜像|
-|| -a "\<author>"  |标记创建者||
+####Docker命令
+**命令均以docker开头，必要时请添加权限提升命令sudo**
 
+<table>
+	<tr>
+		<th>命令</th><th>参数</th><th>参数意义</th><th>命令意义</th>
+	</tr><tr>
+		<td>--version</td><td></td><td></td><td>查看docker版本</td>
+	</tr><tr>
+		<td>run [image_name]</td><td>-dit | -d</td><td>在后台运行</td><td>从镜像启动容器</td>
+	</tr><tr>
+		<td></td><td>--name [container]</td><td>命名容器</td>
+	</tr><tr>
+		<td></td><td>--net [net]</td><td>定义容器网络</td>
+	</tr><tr>
+		<td></td><td>--ip [IP]</td><td>定义容器IP</td>
+	</tr><tr>
+		<td></td><td>-p [server_port]:[container_port]</td><td>定义端口映射</td>
+	</tr><tr>
+		<td></td><td>-v [server_path]:[container_path]</td><td>定义挂载映射</td>
+	</tr><tr>
+		<td>exec [container] [order]</td><td>-it</td><td>以终端方式运行</td><td>在容器中运行命令</td>
+	</tr><tr>
+		<td>search [image_name]</td><td></td><td></td><td>查找镜像文件</td>
+	</tr><tr>
+		<td>pull [image]</td><td></td><td></td><td>拉取镜像文件</td>
+	</tr><tr>
+		<td>rename [container] [new_container]</td><td></td><td></td><td>容器重命名</td>
+	</tr><tr>
+		<td>ps</td><td>-a</td><td>查看所有状态</td><td>默认为运行的容器</td>
+	</tr><tr>
+		<td>start | restart | stop | rm [container]</td><td></td><td></td><td>启动 | 重启 | 停止 | 删除 容器</td>
+	</tr><tr>
+		<td>rmi [image_name]</td><td></td><td></td><td>删除镜像</td>
+	</tr><tr>
+		<td>commit [container] [new_image]</td><td>-m [commit_msg]</td><td>提交标签</td><td>从容器创建镜像</td>
+	</tr><tr>
+		<td></td><td>-a [author]</td><td>标记创建者</td>
+	</tr>
+</table>
 
-##mysql命令
+#####Docker Management Commands
+<table>
+	<tr>
+		<th>命令</th>
+		<th>参数</th><th>子参数</th>
+		<th>子参数意义</th><th>参数意义</th>
+	</tr>
+	<tr>
+		<td>network</td><td>ls</td><td></td><td></td><td>列出本机网络</td>
+	</tr><tr>
+		<td></td><td>create [net]</td><td> -d bridge | host | none</td><td>网络模式</td><td>创建网络</td>
+	</tr><tr>
+		<td></td><td></td><td>--subnet [IP_head]/[IP_room]</td><td>设定网段</td>
+	</tr><tr>
+		<td></td><td>connect [net] [container]</td><td></td><td></td><td>将容器加入网络</td>
+	</tr><tr>
+		<td></td><td>disconnect [net] [container]</td><td></td><td></td><td>将容器断开网络</td>
+	</tr><tr>
+		<td></td><td>inspect [net]</td><td></td><td></td><td>查看网络内情况</td>
+	</tr><tr>
+		<td></td><td>rm [net]</td><td></td><td></td><td>删除网络</td>
+	</tr>
+
+</table>
+
+###mysql命令
 |级别|类别|命令|辅助命令|目的|
 |:-:|---|---|---|---|
 |系统|登录|mysql -h\<IP\> --port=\<server\_port\> -u\<user\_name> -p||登录数据库|
@@ -182,12 +383,12 @@ ssh <username>@<public_IP>
 |表|查询|show columns from \<table\_name\>；||打印表头信息|
 |||select \<key\_name\> \<alias\>, \<key\_name\> from \<table\_name\> where \<condition\>||打印表内信息|
 
-##pyenv命令
+###pyenv命令
 |命令|意义|
 |---|---|
 |pyenv global 3.6.4|切换当前系统环境|
 
-##conda命令
+###conda命令
 |命令|意义|
 |---|---|
 |conda create -n \<env\_name\> python=\<version\_num\>|python版本控制|
@@ -199,6 +400,14 @@ ssh <username>@<public_IP>
 |---|---|---|
 |django-admin startproject \<pro\_name\>|创建一个django工程|
 |python manage.py runserver \<host\_ip\>:\<host\_port\>|开启简易web程序|工程目录下|
+|python manage.py startapp app_name|在工程目录下创建app|工程目录下|
+
+##vue命令
+|命令|意义|备注|
+|---|---|---|
+|sudo vue init webpack <pro_name>|创建vue项目|
+|sudo cnpm install|安装项目依赖|在项目目录下|
+|sudo npm run build|打包项目，生成dist目录|在项目目录下|
 
 
 ##其他问题
@@ -206,3 +415,5 @@ ssh <username>@<public_IP>
 |---|:-:|---|
 |系统Python版本问题|不支持高版本操作|安装高版本并配置系统软连接|
 ||步骤：|cd Python-3.6.4/<br>./configure --prefix=\<sys_path=\usr\local\Python-3.6.4\><br>make && make install<br>ln -s <new_version_file> <old_version_file=/usr/local/bin/>|
+
+
