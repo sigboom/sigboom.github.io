@@ -15,9 +15,8 @@ tags:
 ##框架与步骤设计
 ###物理与开发环境
 <table>
-	<tr>
-		<th>配置种类</th><th>基础配置</th><th colspan=10>详细信息</th>
-	</tr><tr align="center">
+	<tr><th>配置种类</th><th>基础配置</th><th colspan=10>详细信息</th></tr>
+	<tr align="center">
 		<th rowspan=1>物理配置</th><td rowspan=1>腾讯云服务器</td>
 		<td>1核</td><td>2G内存</td><td>50G云硬盘</td><td>1Mbps带宽</td>
 	</tr><tr align="center">
@@ -28,29 +27,30 @@ tags:
 
 ###docker框架
 <table>
+	<tr align=center><th colspan=1>Public</td><th colspan=3>Docker net [daniel-net]</td></tr>
 	<tr>
-		<td><b>Vue-Nginx 前端管理服务器</b>
+		<td colspan=2><b>Vue-Nginx 前端管理服务器</b>
 			<table>
-				<tr align=center><th>前端框架</th><th>静态页面处理</th>
-				</tr><tr align="center"><td>Vue</td><td>Nginx</td>
-				</tr>
+				<tr align=center><th>前端框架</th><th>静态页面处理</th></tr>
+				<tr align="center"><td>Vue</td><td>Nginx</td></tr>
 			</table>
-		</th>
-		<td><b>Apache-Django 后台管理服务器</b>
+		</td><td><b>Apache-Django 后台管理服务器</b>
 			<table>
-				<tr><th>动态部署</th><th>页面生成</th>
-				</tr><tr><td>Apache</td><td>Django</td>
-				</tr>
+				<tr><th>动态部署</th><th>页面生成</th></tr>
+				<tr><td>Apache</td><td>Django</td></tr>
 			</table>
-		</td>
-		<td><b>Mysql-Redis 数据库管理服务器</b>
+		</td><td><b>Mysql-Redis 数据库管理服务器</b>
 			<table>
-				<tr><th>快速缓存</th><th>主存</th>
-				</tr><tr><td>Redis</td><td>Mysql</td>
-				</tr>
+				<tr><th>快速缓存</th><th>主存</th></tr>
+				<tr><td>Redis</td><td>Mysql</td></tr>
 			</table>
 		</td>
 	</tr>
+		<tr align=center><th>BASE</th><td>vue-nginx</td><td>apache-django</td><td></td></tr>
+		<tr><th colspan=5>各版本及实现功能</th></tr>
+		<tr align=center><td>V1.0.1</td><td>支持vue</td><td>支持HCJS</td></tr>
+		<tr align=center><td rowspan=2>V1.0.2</td><td colspan=2>自动化部署</td></tr>
+		<tr align=center><td>支持动静分离</td><td></td></tr>
 </table>
 
 ###项目搭建基本框架步骤
@@ -58,7 +58,6 @@ tags:
 1. 搭建Nginx服务器，实现简单页面浏览
 2. 加入vue框架，并简单使用已经有的模板
 3. 配置动静分离，将动态请求转至Apache-Django服务器(暂时实现/data的反向代理)
-
 ####搭建Apache-Django服务器
 1. 搭建Apache服务器，将Django部署
 
@@ -451,7 +450,9 @@ tags:
 	</tr><tr>
 		<td>commit [container] [new_image]</td><td>-m [commit_msg]</td><td>提交标签</td><td>从容器创建镜像</td>
 	</tr><tr>
-		<td></td><td>-a [author]</td><td>标记创建者</td>
+		<td></td><td>-a [author]</td><td>标记创建者</td><td></td>
+	</tr><tr>
+		<td>tag [image_id] [image]:[image_tag]</td><td></td><td></td><td>修改镜像标签</td>
 	</tr>
 </table>
 
