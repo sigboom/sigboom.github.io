@@ -46,11 +46,12 @@ tags:
 			</table>
 		</td>
 	</tr>
-		<tr align=center><th>BASE</th><td>vue-nginx</td><td>apache-django</td><td></td></tr>
-		<tr><th colspan=5>各版本及实现功能</th></tr>
-		<tr align=center><td>V1.0.1</td><td>支持vue</td><td>支持HCJS</td></tr>
-		<tr align=center><td rowspan=2>V1.0.2</td><td colspan=2>自动化部署</td></tr>
-		<tr align=center><td>支持动静分离</td><td></td></tr>
+	<tr align=center><th>BASE</th><td>vue-nginx</td><td>apache-django</td><td></td></tr>
+	<tr><th colspan=5>各版本及实现功能</th></tr>
+	<tr align=center><td>V1.0.1</td><td>支持vue</td><td>支持HCJS</td></tr>
+	<tr align=center><td rowspan=2>V1.0.2</td><td colspan=2>自动化部署</td></tr>
+	<tr align=center><td>支持动静分离</td></tr>
+	<tr align=center><td>V1.0.3</td><td>支持HTTPS</td><tr>
 </table>
 
 ###项目搭建基本框架步骤
@@ -58,6 +59,8 @@ tags:
 1. 搭建Nginx服务器，实现简单页面浏览
 2. 加入vue框架，并简单使用已经有的模板
 3. 配置动静分离，将动态请求转至Apache-Django服务器(暂时实现/data的反向代理)
+4. 实现并支持HTTPS
+
 ####搭建Apache-Django服务器
 1. 搭建Apache服务器，将Django部署
 
@@ -102,11 +105,10 @@ tags:
 
 ## autosort 项目内部环境配置
 ###Anaconda 虚拟环境下配置
-|配置内容|执行命令|路径|备注事项|
-|---|---|---|---|
-|python3|conda create -n docneaten python=3.6.8||
-|pip|pip install django||
-|django|django-admin startproject docneaten|/home|
+|配置内容|执行命令|备注事项|
+|---|---|---|
+|python3|conda create -n docneaten python=3.6.8|
+|pip|pip install django|
 
 ###Docker配置
 |配置内容|执行命令|执行操作内容|备注事项|
@@ -114,14 +116,6 @@ tags:
 |Apache|sudo docker run -d --name apache-django -p -v /home/daniel/Apache-Django/autosort/:/autosort/ httpd|创建apache容器|-d 在后台运行|
 |Mysql|sudo docker run --name mysql-web -p 3307:3306 -v /home/mysqldata:/home/mysqldata -e MYSQL_ROOT_PASSWORD=6940588666035 -d mysql/mysql-server:5.7|创建mysql容器|
 |redis|docker run -d --name redis-web -p 6379:6379 redis --requirepass "6940588666035"|创建redis容器|
-|Django|sudo docker pull library/django:1.10.4-python3||
-|ssl|docker cp \<ssl\_files\_path\> \<container\_name\>:\<apache2\_path\>/cert/||将ssl的cert文件放到apache目录下
-||sudo docker exec -it daniel-web /bin/bash||进入container|
-||vim /user/local/apache2/conf/httpd.conf|/ssl 去掉注释(0 x)|添加ssl模块(确认LoadModule \*/mod_ssl.so)|
-||vim /user/local/apache2/conf/extra/httpd-ssl.conf|\<VirtualHost 0.0.0.0:443><br>DocumentRoot "/var/www/html"<br>ServerName www.domain.com #填写证书名称<br>ServerAdmin root@domain.com<br>SSLEngine on #启用 SSL 功能<br>SSLCertificateFile /etc/httpd/ssl/2\_www.domain.com.crt #证书文件的路径<br>SSLCertificateKeyFile /etc/httpd/ssl/3\_www.domain.com.key #私钥文件的路径<br>SSLCertificateChainFile /etc/httpd/ssl/1\_root_bundle.crt #证书链文件的路径<br>\</VirtualHost>|
-||vim /user/local/apache2/conf/httpd.conf|/rew 去掉注释(0 x)|http跳转https模块(确认LoadModule \*/mod_rewrite.so)|
-|||\<Directory "/var/www/html"\> <br># 新增<br>RewriteEngine on<br>RewriteCond %{SERVER_PORT} !\^443$ <br>RewriteRule ^(.*)?$ https://%{SERVER_NAME}%{REQUEST_URI} [L,R]<br>\</Directory>||
-||apachectl restart||重启服务？？？|
 |docker-compose|sudo curl -L "https://github.com/docker/compose/releases/download/1.24.1/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose|
 ||chmod +x /usr/local/bin/docker-compose|
 
@@ -134,97 +128,157 @@ tags:
 ||docker network disconnect bridge daniel-web||将daniel-web断开网络|
 
 ####vue-nginx搭建
+#####封装 deploy.sh
 1. 构建vue项目(参考vue命令)，将vue项目通过npm run build 打包
 2. cp -r dist ..
 3. 创建nginx.conf
-	
-	```nginx
-	worker_processes auto;
-	#error_log  logs/error.log;
-	#error_log  logs/error.log  notice;
-	#error_log  logs/error.log  info;
-	#pid        logs/nginx.pid;
-	events {
-    	worker_connections  1024;
-	}
-	http {
-    	include       mime.types;
-    	default_type  application/octet-stream;
-    	#log_format  main  '$remote_addr - $remote_user [$time_local] "$request" '
-    	#                  '$status $body_bytes_sent "$http_referer" '
-    	#                  '"$http_user_agent" "$http_x_forwarded_for"';
-    	#access_log  logs/access.log  main;
-    	sendfile        on;
-    	#tcp_nopush     on;
-    	#keepalive_timeout  0;
-   		keepalive_timeout  65;
-    	#gzip  on;
-    	client_max_body_size   20m;
-    	server {
-        	listen       80;
-        	server_name  www.longdb.com;# 这里换域名
-        	#charset koi8-r;
-        	#access_log  logs/host.access.log  main;
-     	location / {
-        	root   /usr/share/nginx/html;
-        	index  index.html index.htm;
-        	try_files $uri $uri/ /index.html;
-        	}
-        	#error_page  404              /404.html;
-        	# redirect server error pages to the static page /50x.html
-        	#
-        	error_page   500 502 503 504  /50x.html;
-        	location = /50x.html {
-            	root   html;
-        	}
-        	# proxy the PHP scripts to Apache listening on 127.0.0.1:80
-        	#
-        	#location ~ \.php$ {
-        	#    proxy_pass   http://127.0.0.1;
-        	#}
-        	# pass the PHP scripts to FastCGI server listening on 127.0.0.1:9000
-        	#
-        	#location ~ \.php$ {
-        	#    root           html;
-        	#    fastcgi_pass   127.0.0.1:9000;
-        	#    fastcgi_index  index.php;
-        	#    fastcgi_param  SCRIPT_FILENAME  /scripts$fastcgi_script_name;
-        	#    include        fastcgi_params;
-        	#}
-        	# deny access to .htaccess files, if Apache's document root
-        	# concurs with nginx's one
-        	#
-        	#location ~ /\.ht {
-        	#    deny  all;
-        	#}
-    	}
-    	# another virtual host using mix of IP-, name-, and port-based configuration
-    	#
-    	#server {
-    	#    listen       8000;
-    	#    listen       somename:8080;
-    	#    server_name  somename  alias  another.alias;
-    	#    location / {
-    	#        root   html;
-    	#        index  index.html index.htm;
-    	#    }
-    	#}
-	}
-	```
 4. 创建Dockerfile
-	
-	> FROM nginx <br>
-	> MAINTAINER longdb <br>
-	> \# 将dist文件中的内容复制到 /usr/share/nginx/html/ 这个目录下面<br>
-	> COPY dist/  /usr/share/nginx/html/ <br>
-	> COPY nginx.conf /etc/nginx/nginx.conf <br>
-	> RUN echo 'echo init ok!!'
-
 5. cd .. && docker build -t vue:V1.0.0 .
 6. sudo docker run -p 8849:80 -d --name vue-nginx vue:V1.0.0
 7. docker network connect --ip 172.25.0.3 daniel-net vue-nginx
+8. 配置文件
+	- nginx.conf[http版]
+		
+		```nginx
+		worker_processes auto;
+		events {
+    		worker_connections  1024;
+		}
+		http {
+    		include       mime.types;
+    		default_type  application/octet-stream;
+    		sendfile        on;
+   			keepalive_timeout  65;
+    		client_max_body_size   20m;
+    		server {
+        		listen       80;
+	        	server_name  www.longdb.com;# 这里换域名
+	     		location / {
+	        		root   /usr/share/nginx/html;
+	        		index  index.html index.htm;
+	        		try_files $uri $uri/ /index.html;
+	        	}
+	        	#error_page  404              /404.html;
+	        	
+	        	error_page   500 502 503 504  /50x.html;
+	        	location = /50x.html {
+	            	root   html;
+	        	}
+	       }
+		}
+		```
+	- Dockerfile
+	
+		```Dockerfile
+		FROM vue-nginx:BASE
+		MAINTAINER daniel doni
+		COPY dist/ /usr/share/nginx/html/
+		COPY nginx.conf /etc/nginx/
+		COPY Nginx/* /etc/nginx/
+		RUN echo 'echo init OK!'
+		```
 
-#####以上命令已封装到 deploy.sh
+```sh
+container=vue-nginx
+image=vue
+
+if [ ! -n "$1" ];then
+	echo project need a tag
+else
+	tag=$1
+	running=`docker ps | grep $container`
+	exist=`docker ps -a | grep $container`
+	if [ "$running" ]; then
+		docker stop $container && docker rm $container
+	elif [ "$exist" ];then
+		docker rm $container
+	fi
+	old=`docker images | grep $image | grep $tag`
+	if [ "$old" ];then
+		docker rmi $image:$tag
+	fi
+	docker build -t $image:$tag .
+	docker run --name $container -d -p 80:80 -p 443:443 $image:$tag
+	docker network connect --ip 172.25.0.3 daniel-net $container
+fi
+```
+
+#####添加SSL模块[http->https]
+1. 确认ssl模块
+
+	```sh
+	nginx -V | grep with-http_ssl_module
+	```
+2. 修改nginx.conf[https版]
+	
+	```nginx
+	worker_processes auto;
+	events {
+	    worker_connections  1024;
+	}
+	
+	http {
+	    include       mime.types;
+	    default_type  application/octet-stream;
+	    #log_format  main  '$remote_addr - $remote_user [$time_local] "$request" '
+	    #                  '$status $body_bytes_sent "$http_referer" '
+	    #                  '"$http_user_agent" "$http_x_forwarded_for"';
+	    #access_log  logs/access.log  main;
+	    sendfile        on;
+	    #tcp_nopush     on;
+	    #keepalive_timeout  0;
+	    keepalive_timeout  65;
+	    #gzip  on;
+	    client_max_body_size   20m;
+	
+		server {
+			listen  443 ssl;
+	        server_name  sigboom.cn;
+			root   /usr/share/nginx/html;
+			#charset koi8-r;
+	        #access_log  logs/host.access.log  main;
+			
+			ssl_certificate /etc/nginx/1_sigboom.cn_bundle.crt;
+			ssl_certificate_key /etc/nginx/2_sigboom.cn.key;
+	        ssl_ciphers ECDHE-RSA-AES128-GCM-SHA256:ECDHE:ECDH:AES:HIGH:!NULL:!aNULL:!MD5:!ADH:!RC4;
+			ssl_protocols TLSv1 TLSv1.1 TLSv1.2;
+			ssl_prefer_server_ciphers on;
+			ssl_session_timeout 5m;
+	
+			location / {
+				index  index.html index.htm;
+				try_files $uri $uri/ /index.html;
+	        }
+	        #error_page  404              /404.html;
+	        # redirect server error pages to the static page /50x.html
+	        #
+	        error_page   500 502 503 504  /50x.html;
+	        location = /50x.html {
+	            root   html;
+	        }
+			
+			# proxy Python to Apache listening on 172.25.0.3:80
+			location /data {
+				proxy_pass http://172.25.0.4:80;
+			}
+	
+			location ~* \.(html|htm)$ {
+				root /usr/share/nginx/html/static;
+				expires 10d; 
+			}
+	
+			location ~* \.(gif|jpg|jpeg|bmp|png|tiff|tif|ico|wmf|js)$ {
+				root /usr/share/nginx/html/static;
+				expires 10d; 
+			}	
+		}
+	    server {
+	        listen       80;
+	        server_name  sigboom.cn;# 这里换域名
+	        return 301 https://$server_name$request_uri;
+	    }
+	}
+	```
 
 ####Apache-Django虚拟机配置\<httpd:latest\>
 1. 封装制作一级镜像[apache-django:BASE | REBASE]
@@ -412,6 +466,7 @@ tags:
 ||status docker||查看状态|
 |apachectl|start\|restart\|stop||开启\|重启\|停止Apache服务|
 |curl|icanhazip.com|访问特定网址|获取公网IP|
+|nmap|-Pn -p[port] [IP]||查看端口状态与服务信息|
 
 ####Docker命令
 **命令均以docker开头，必要时请添加权限提升命令sudo**
@@ -524,5 +579,7 @@ tags:
 |---|:-:|---|
 |系统Python版本问题|不支持高版本操作|安装高版本并配置系统软连接|
 ||步骤：|cd Python-3.6.4/<br>./configure --prefix=\<sys_path=\usr\local\Python-3.6.4\><br>make && make install<br>ln -s <new_version_file> <old_version_file=/usr/local/bin/>|
+|https服务开启问题|服务器显示服务无效|同时监听80端口与443端口|
+|https服务资源加载问题|所有页面内部资源404|https服务页面所有资源的请求形式为https://资源URL，注意修改客户端文件结构与服务端文件结构的对应|
 
 
