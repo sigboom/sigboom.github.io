@@ -27,7 +27,7 @@ tags:
 
 ###docker框架
 <table>
-	<tr align=center><th colspan=1>Public</td><th colspan=3>Docker net [daniel-net]</td></tr>
+	<tr align=center><th colspan=1>Public</td><th colspan=4>Docker net [daniel-net]</td></tr>
 	<tr>
 		<td colspan=2><b>Vue-Nginx 前端管理服务器</b>
 			<table>
@@ -39,19 +39,19 @@ tags:
 				<tr><th>动态部署</th><th>页面生成</th></tr>
 				<tr><td>Apache</td><td>Django</td></tr>
 			</table>
-		</td><td><b>Mysql-Redis 数据库管理服务器</b>
+		</td><td colspan=2><b>数据库服务器</b>
 			<table>
-				<tr><th>快速缓存</th><th>主存</th></tr>
-				<tr><td>Redis</td><td>Mysql</td></tr>
+				<tr><th>缓存</th><td>Redis</td></tr>
+				<tr><th>磁盘</th><td>Mysql</td></tr>
 			</table>
 		</td>
 	</tr>
-	<tr align=center><th>BASE</th><td>vue-nginx</td><td>apache-django</td><td></td></tr>
+	<tr align=center><th>BASE</th><td>vue-nginx</td><td>apache-django</td><td>redis</td><td>mysql</td></tr>
 	<tr><th colspan=5>各版本及实现功能</th></tr>
-	<tr align=center><td>V1.0.1</td><td>支持vue</td><td>支持HCJS</td></tr>
+	<tr align=center><td>V1.0.1</td><td>支持vue</td><td>支持HCJS</td><td colspan=2>支持本地服务</tr>
 	<tr align=center><td rowspan=2>V1.0.2</td><td colspan=2>自动化部署</td></tr>
-	<tr align=center><td>支持动静分离</td></tr>
-	<tr align=center><td>V1.0.3</td><td>支持HTTPS</td><tr>
+	<tr align=center><td colspan=2>支持动静分离</td></tr>
+	<tr align=center><td>V1.0.3</td><td>支持HTTPS</td><td>链接并调用数据库</td><tr>
 </table>
 
 ###项目搭建基本框架步骤
@@ -63,8 +63,14 @@ tags:
 
 ####搭建Apache-Django服务器
 1. 搭建Apache服务器，将Django部署
+2. 配置redis cache, 配置mysql数据库并进行访问
 
-####搭建Mysql-Redis服务器
+####搭建数据库服务器
+#####Redis服务器
+1. 搭建redis服务器，并联入内网
+
+#####Mysql服务器
+1. 建立初始化数据库，并联入内网
 
 ##基本个人环境配置
 ###服务器编辑环境配置
@@ -104,31 +110,13 @@ tags:
 ||npm install -g @vue/cli|
 
 ## autosort 项目内部环境配置
-###Anaconda 虚拟环境下配置
-|配置内容|执行命令|备注事项|
-|---|---|---|
-|python3|conda create -n docneaten python=3.6.8|
-|pip|pip install django|
-
-###Docker配置
-|配置内容|执行命令|执行操作内容|备注事项|
-|---|---|---|---|
-|Apache|sudo docker run -d --name apache-django -p -v /home/daniel/Apache-Django/autosort/:/autosort/ httpd|创建apache容器|-d 在后台运行|
-|Mysql|sudo docker run --name mysql-web -p 3307:3306 -v /home/mysqldata:/home/mysqldata -e MYSQL_ROOT_PASSWORD=6940588666035 -d mysql/mysql-server:5.7|创建mysql容器|
-|redis|docker run -d --name redis-web -p 6379:6379 redis --requirepass "6940588666035"|创建redis容器|
-|docker-compose|sudo curl -L "https://github.com/docker/compose/releases/download/1.24.1/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose|
-||chmod +x /usr/local/bin/docker-compose|
-
-####network配置daniel-net
+###network配置daniel-net
 |配置内容|执行命令|执行操作内容|描述|
 |---|---|---|---|
 |network|docker network create -d bridge --subnet 172.25.0.0/16 daniel-net||创建网络|
-||docker network connect daniel-net vue-nginx||将vue-nginx连入网络|
-||docker network connect daniel-net daniel-web||将daniel-web连入网络|
-||docker network disconnect bridge daniel-web||将daniel-web断开网络|
 
-####vue-nginx搭建
-#####封装 deploy.sh
+###vue-nginx搭建
+####封装 deploy.sh
 1. 构建vue项目(参考vue命令)，将vue项目通过npm run build 打包
 2. cp -r dist ..
 3. 创建nginx.conf
@@ -203,7 +191,7 @@ else
 fi
 ```
 
-#####添加SSL模块[http->https]
+####添加SSL模块[http->https]
 1. 确认ssl模块
 
 	```sh
@@ -280,7 +268,7 @@ fi
 	}
 	```
 
-####Apache-Django虚拟机配置\<httpd:latest\>
+###Apache-Django虚拟机配置[django]
 1. 封装制作一级镜像[apache-django:BASE | REBASE]
 	<table>
 		<tr align=center>
@@ -314,13 +302,29 @@ fi
 		</tr><tr>
 			<td rowspan=2>pip安装django</td><td>pip install --upgrade pip</td>
 		</tr><tr>
-			<td>pip install django pymysql</td>
+			<td>pip install django pymysql django-redis</td>
 		</tr><tr>
 			<td>获取mod\_wsgi.so</td><td>cp mod_wsgi.so /usr/local/apache2/modules/</td>
 		</tr><tr align=center>
 			<th colspan=10>生成镜像apache-django:BASE</th>
 		</tr>
 	</table>
+	镜像Dockerfile
+	
+	```Dockerfile
+	FROM httpd:latest
+	RUN apt-get -y upgrade && apt-get update
+	RUN apt-get install -y wget gcc make build-essential libncursesw5-dev libssl-dev libgdbm-dev libc6-dev libsqlite3-dev tk-dev libreadline-dev libapache2-mod-wsgi-py3
+	RUN wget https://www.python.org/ftp/python/3.6.8/Python-3.6.8.tar.xz
+	RUN tar xvf Python-3.6.8.tar.xz
+	RUN cd Python-3.6.8 && ./configure && make && make install
+	RUN rm -rf /usr/local/apache2/Python-3.6.8*
+	RUN ln -s /usr/local/bin/python3 /usr/local/bin/python
+	RUN ln -s /usr/local/bin/pip3 /usr/local/bin/pip
+	RUN pip install --upgrade pip
+	RUN pip install django pymysql django-redis cryptography
+	COPY mod_wsgi.so /usr/local/apache2/modules/
+	```
 
 2. 制作Dockerfile
 	
@@ -329,6 +333,7 @@ fi
 	MANTAINER "daniel <sigboom@163.com>"
 	COPY httpd.conf /usr/local/apache2/conf/
 	COPY autosort.conf /usr/local/apache2/conf/extra/
+	COPY mysql-change/*.py /usr/local/lib/python3.6/site-packages/django/db/backends/mysql/
 	```
 	
 	1. httpd.conf与autosort.conf配置<br>
@@ -404,6 +409,15 @@ fi
 		mkdir logs
 		python manage.py startapp data
 		```
+	5. mysql-change下文件
+		
+		```py
+		#base.py注释掉下面两行
+		if version < (1, 3, 13):
+		raise ImproperlyConfigured('mysqlclient 1.3.13 or newer is required; you have %s.' % Database.__version__)
+		#operations.py修改decode
+		decode -> encode
+		```
 	
 3. 封装deploy.sh
 	
@@ -431,17 +445,95 @@ fi
 	fi
 	```
 
-###django-web虚拟机配置\<django-web_image:v2>
-|配置内容|执行命令|执行操作内容|备注事项|
-|---|---|---|---|
-|mysql|pip install pymysql|
-||vim \_\_init\_\_.py|import pymysql<br>pymysql.install\_as\_MySQLdb()|
-||vim ~/.pyenv/versions/3.6.4/lib/python3.6/site-packages/django/db/backends/mysql/base.py|#if version < (1, 3, 13):<br>#    raise ImproperlyConfigured('mysqlclient 1.3.13 or newer is required; you have %s.' % Database.\_\_version\_\_)|
-||vim ~/.pyenv/versions/3.6.4/lib/python3.6/site-packages/django/db/backends/mysql/operations.py|decode -> encode|
-|django|python manage.py makemigrations|
-||python manage.py migrate|
-||python manage.py runserver|
+###redis虚拟机配置[redis-data]
+1. 配置Dockerfile
 
+	```Dockerfile
+	FROM redis:BASE
+	```
+2. 配置deploy.sh
+
+	```sh
+	container=redis
+	image=redis-data
+	IP=172.25.0.2
+	CMD=redis-server
+
+	if [ ! -n "$1" ];then
+		echo project need a tag
+	else
+		running=`docker ps | grep $container`
+		exist=`docker ps -a | grep $container`
+		if [ "$running" ]; then
+			docker stop $container && docker rm $container 
+		elif [ "$exist" ];then
+			docker rm $container
+		fi
+		old=`docker images | grep $image | grep $1`
+		if [ "$old" ];then
+			docker rmi $image:$1
+		fi
+		docker build -t $image:$1 .
+		docker run --name $container --net daniel-net --ip $IP -d $image:$1 $CMD
+	fi
+
+	```
+	
+###mysql虚拟机配置[mysql-data]
+1. 配置Dockerfile
+	1. 创建初始数据库
+		
+		```sql
+		create database `autosort_db` default character set utf8 collate utf8_general_ci;
+		 
+		use autosort_db;
+		 
+		DROP TABLE IF EXISTS `user`;
+		 
+		CREATE TABLE `user` (
+		 `id` bigint(20) NOT NULL,
+		 `email` varchar(255) DEFAULT NULL,
+		 `first_name` varchar(255) DEFAULT NULL,
+		 `last_name` varchar(255) DEFAULT NULL,
+		 `username` varchar(255) DEFAULT NULL,
+		 PRIMARY KEY (`id`)
+		) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+		```
+	2. mysql初始化时将会执行/docker-entrypoint-initdb.d下sql文件
+	
+	```Dockerfile
+	FROM mysql:BASE
+	COPY init-sql/*.sql /docker-entrypoint-initdb.d/
+	```
+2. 配置deploy.sh
+
+	```sh
+	container=mysql
+	image=mysql-data
+	IP="--ip 172.25.0.5"
+	Net="--net daniel-net"
+	ENV="-e MYSQL_ROOT_PASSWORD=password"
+	CMD=""
+	
+	if [ ! -n "$1" ];then
+		echo project need a tag
+	else
+		running=`docker ps | grep $container`
+		exist=`docker ps -a | grep $container`
+		if [ "$running" ]; then
+			docker stop $container && docker rm $container 
+		elif [ "$exist" ];then
+			docker rm $container
+		fi
+		old=`docker images | grep $image | grep $1`
+		if [ "$old" ];then
+			docker rmi $image:$1
+		fi
+		docker build -t $image:$1 .
+		docker run --name $container $Net $IP -d $ENV $image:$1 $CMD
+	fi
+
+	```
 
 ##命令使用
 ###本地命令
@@ -456,10 +548,27 @@ fi
 	</tr>
 </table>
 
+####Github命令
+<table>
+	<tr><th colspan=10>命令均以git开头</th></tr>
+	<tr><th>命令</th><th>参数</th><th>参数意义</th><th>命令意义</th></tr>
+	<tr><td>status</td><td></td><td></td><td>查看本地仓库状态</td></tr>
+	<tr><td>add [File]</td><td>--all</td><td>所有文件</td><td>将文件添加至缓存区</td></tr>
+	<tr><td>commit</td><td>{-m [tag]}</td><td>添加提交tag</td><td>提交改变给本地仓库</td></tr>
+	<tr><td rowspan=2>push</td><td>-f</td><td>强制提交</td><td rowspan=2>将本地仓库推送至Github服务端</td></tr>
+	<tr><td>-u [branch]</td><td>推送到指定分支<br>默认[origin master]</td></tr>
+	<tr><td>pull</td><td></td><td></td><td>从Github服务端拉取最新版本</td></tr>
+	<tr><td rowspan=2>log</td><td>--oneline</td><td>简化默认的输出</td><td>查看历史版本</td></tr>
+	<tr><td>--pretty=[mode]</td><td>自定义输出的信息</td><td>git log --pretty=oneline</td></tr>
+	<tr><td>reset</td><td>--hard [git-ID]</td><td>重置索引与工作树</td><td>回退到历史版本</td></tr>
+</table>
+
 ###服务端命令
 ####系统命令
 |命令|参数|参数意义|命令意义|
 |---|---|---|---|
+|tar|zxvf \| zcvf \| czvp\| -f |解压缩\|压缩|压缩|
+|split|-b 45m [tar-file] [split-name]||文件切分|
 |reboot|||重启服务器|
 |htop|||查看系统情况|
 |systemctl|start docker||开启docker服务|
@@ -536,6 +645,14 @@ fi
 
 </table>
 
+#####Dockerfile
+<table>
+	<tr><th>关键词</th><th>意义</th></tr>
+	<tr><td>FROM [image]</td><td>从该镜像生成镜像</td></tr>
+	<tr><td>MAINTAINER [author [email]]</td><td>为镜像添加作者(email)</td></tr>
+	<tr><td>COPY [File] [container-path]</td><td>从本机拷贝文件到容器</td></tr>
+</table>
+
 ####mysql命令
 |级别|类别|命令|辅助命令|目的|
 |:-:|---|---|---|---|
@@ -565,6 +682,9 @@ fi
 |django-admin startproject \<pro\_name\>|创建一个django工程|
 |python manage.py runserver \<host\_ip\>:\<host\_port\>|开启简易web程序|工程目录下|
 |python manage.py startapp app_name|在工程目录下创建app|工程目录下|
+|python manage.py makemigrations &&<br> python manage.py migrate|更新数据库模型|工程目录下
+
+
 
 ####vue命令
 |命令|意义|备注|
@@ -581,5 +701,9 @@ fi
 ||步骤：|cd Python-3.6.4/<br>./configure --prefix=\<sys_path=\usr\local\Python-3.6.4\><br>make && make install<br>ln -s <new_version_file> <old_version_file=/usr/local/bin/>|
 |https服务开启问题|服务器显示服务无效|同时监听80端口与443端口|
 |https服务资源加载问题|所有页面内部资源404|https服务页面所有资源的请求形式为https://资源URL，注意修改客户端文件结构与服务端文件结构的对应|
+|django加载mysql|运行有错误|
+||vim \_\_init\_\_.py|import pymysql<br>pymysql.install\_as\_MySQLdb()|
+||vim /usr/local/lib/python3.6/site-packages/django/db/backends/mysql/base.py|#if version < (1, 3, 13):<br>#    raise ImproperlyConfigured('mysqlclient 1.3.13 or newer is required; you have %s.' % Database.\_\_version\_\_)|
+||vim /usr/local/lib/python3.6/site-packages/django/db/backends/mysql/operations.py|decode -> encode|
 
 
