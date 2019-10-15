@@ -105,8 +105,6 @@ tags:
 |sysstat|sudo apt-get install sysstat||系统状态工具包
 |vue|sudo apt install nodejs|
 ||sudo apt install npm|
-||sudo npm install -g cnpm --registry=https://registry.npm.taobao.org|
-||~~sudo cnpm install -g vue-cli~~||失败|
 ||npm install -g @vue/cli|
 
 ## autosort 项目内部环境配置
@@ -682,9 +680,7 @@ fi
 |django-admin startproject \<pro\_name\>|创建一个django工程|
 |python manage.py runserver \<host\_ip\>:\<host\_port\>|开启简易web程序|工程目录下|
 |python manage.py startapp app_name|在工程目录下创建app|工程目录下|
-|python manage.py makemigrations &&<br> python manage.py migrate|更新数据库模型|工程目录下
-
-
+|python manage.py makemigrations [app]&&<br> python manage.py migrate [app]|更新[app]数据库模型(默认为all)|工程目录下|
 
 ####vue命令
 |命令|意义|备注|
