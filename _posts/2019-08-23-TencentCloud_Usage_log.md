@@ -15,9 +15,9 @@ tags:
 ##框架与步骤设计
 ###物理与开发环境
 <table>
-	<tr><th>配置种类</th><th>基础配置</th><th colspan=10>详细信息</th></tr>
+	<tr><th>配置种类</th><th>基础配置</th><th colspan="10">详细信息</th></tr>
 	<tr align="center">
-		<th rowspan=1>物理配置</th><td rowspan=1>腾讯云服务器</td>
+		<th rowspan="1">物理配置</th><td rowspan="1">腾讯云服务器</td>
 		<td>1核</td><td>2G内存</td><td>50G云硬盘</td><td>1Mbps带宽</td>
 	</tr><tr align="center">
 		<th>操作系统</th><td>Ubuntu Server</td>
@@ -27,9 +27,9 @@ tags:
 
 ###docker框架
 <table>
-	<tr align=center><th colspan=1>Public</td><th colspan=4>Docker net [daniel-net]</td></tr>
+	<tr align=center><th colspan="1">Public</td><th colspan="4">Docker net [daniel-net]</td></tr>
 	<tr>
-		<td colspan=2><b>Vue-Nginx 前端管理服务器</b>
+		<td colspan="2"><b>Vue-Nginx 前端管理服务器</b>
 			<table>
 				<tr align=center><th>前端框架</th><th>静态页面处理</th></tr>
 				<tr align="center"><td>Vue</td><td>Nginx</td></tr>
@@ -39,7 +39,7 @@ tags:
 				<tr><th>动态部署</th><th>页面生成</th></tr>
 				<tr><td>Apache</td><td>Django</td></tr>
 			</table>
-		</td><td colspan=2><b>数据库服务器</b>
+		</td><td colspan="2"><b>数据库服务器</b>
 			<table>
 				<tr><th>缓存</th><td>Redis</td></tr>
 				<tr><th>磁盘</th><td>Mysql</td></tr>
@@ -47,10 +47,10 @@ tags:
 		</td>
 	</tr>
 	<tr align=center><th>BASE</th><td>vue-nginx</td><td>apache-django</td><td>redis</td><td>mysql</td></tr>
-	<tr><th colspan=5>各版本及实现功能</th></tr>
-	<tr align=center><td>V1.0.1</td><td>支持vue</td><td>支持HCJS</td><td colspan=2>支持本地服务</tr>
-	<tr align=center><td rowspan=2>V1.0.2</td><td colspan=2>自动化部署</td></tr>
-	<tr align=center><td colspan=2>支持动静分离</td></tr>
+	<tr><th colspan="5">各版本及实现功能</th></tr>
+	<tr align=center><td>V1.0.1</td><td>支持vue</td><td>支持HCJS</td><td colspan="2">支持本地服务</tr>
+	<tr align=center><td rowspan="2">V1.0.2</td><td colspan="2">自动化部署</td></tr>
+	<tr align=center><td colspan="2">支持动静分离</td></tr>
 	<tr align=center><td>V1.0.3</td><td>支持HTTPS</td><td>链接并调用数据库</td><tr>
 </table>
 
@@ -270,13 +270,13 @@ fi
 1. 封装制作一级镜像[apache-django:BASE | REBASE]
 	<table>
 		<tr align=center>
-			<th colspan=10>基础镜像httpd:latest</th>
+			<th colspan="10">基础镜像httpd:latest</th>
 		</tr><tr>
 			<th>配置内容</th><th>执行命令</th>
 		</tr><tr>
 			<td>更新apt-get</td><td>apt-get -y upgrade && apt-get update</td>
 		</tr><tr>
-			<td rowspan=4>python3前导包</td><td>apt-get install -y wgte gcc make build-essential</td>
+			<td rowspan="4">python3前导包</td><td>apt-get install -y wgte gcc make build-essential</td>
 		</tr><tr>
 			<td>apt-get install -y  libncursesw5-dev libssl-dev </td>
 		</tr><tr>
@@ -286,7 +286,7 @@ fi
 		</tr><tr align=center>
 			<td>apache链接django包</td><td>apt-get install -y libapache2-mod-wsgi-py3</td>
 		</tr><tr align=center>
-			<td rowspan=6>安装python3</td><td>wget https://www.python.org/ftp/python/3.6.8/Python-3.6.8.tar.xz</td>
+			<td rowspan="6">安装python3</td><td>wget https://www.python.org/ftp/python/3.6.8/Python-3.6.8.tar.xz</td>
 		</tr><tr>
 			<td>tar xvf Python-3.6.8.tar.xz && cd Python-3.6.8</td>
 		</tr><tr>
@@ -298,13 +298,13 @@ fi
 		</tr><tr>
 			<td>ln -s /usr/local/bin/pip3 /usr/local/bin/pip</td>
 		</tr><tr>
-			<td rowspan=2>pip安装django</td><td>pip install --upgrade pip</td>
+			<td rowspan="2">pip安装django</td><td>pip install --upgrade pip</td>
 		</tr><tr>
 			<td>pip install django pymysql django-redis</td>
 		</tr><tr>
 			<td>获取mod\_wsgi.so</td><td>cp mod_wsgi.so /usr/local/apache2/modules/</td>
 		</tr><tr align=center>
-			<th colspan=10>生成镜像apache-django:BASE</th>
+			<th colspan="10">生成镜像apache-django:BASE</th>
 		</tr>
 	</table>
 	镜像Dockerfile
@@ -548,15 +548,15 @@ fi
 
 ####Github命令
 <table>
-	<tr><th colspan=10>命令均以git开头</th></tr>
+	<tr><th colspan="10">命令均以git开头</th></tr>
 	<tr><th>命令</th><th>参数</th><th>参数意义</th><th>命令意义</th></tr>
 	<tr><td>status</td><td></td><td></td><td>查看本地仓库状态</td></tr>
 	<tr><td>add [File]</td><td>--all</td><td>所有文件</td><td>将文件添加至缓存区</td></tr>
 	<tr><td>commit</td><td>{-m [tag]}</td><td>添加提交tag</td><td>提交改变给本地仓库</td></tr>
-	<tr><td rowspan=2>push</td><td>-f</td><td>强制提交</td><td rowspan=2>将本地仓库推送至Github服务端</td></tr>
+	<tr><td rowspan="2">push</td><td>-f</td><td>强制提交</td><td rowspan="2">将本地仓库推送至Github服务端</td></tr>
 	<tr><td>-u [branch]</td><td>推送到指定分支<br>默认[origin master]</td></tr>
 	<tr><td>pull</td><td></td><td></td><td>从Github服务端拉取最新版本</td></tr>
-	<tr><td rowspan=2>log</td><td>--oneline</td><td>简化默认的输出</td><td>查看历史版本</td></tr>
+	<tr><td rowspan="2">log</td><td>--oneline</td><td>简化默认的输出</td><td>查看历史版本</td></tr>
 	<tr><td>--pretty=[mode]</td><td>自定义输出的信息</td><td>git log --pretty=oneline</td></tr>
 	<tr><td>reset</td><td>--hard [git-ID]</td><td>重置索引与工作树</td><td>回退到历史版本</td></tr>
 </table>
