@@ -106,6 +106,7 @@ tags:
 |vue|sudo apt install nodejs|
 ||sudo apt install npm|
 ||npm install -g @vue/cli|
+|svn|sudo apt install subversion||安装svn|
 
 ## autosort 项目内部环境配置
 ###network配置daniel-net
