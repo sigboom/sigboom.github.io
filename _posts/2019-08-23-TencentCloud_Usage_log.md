@@ -686,9 +686,9 @@ fi
 ####vue命令
 |命令|意义|备注|
 |---|---|---|
-|sudo vue init webpack <pro_name>|创建vue项目|
-|sudo cnpm install|安装项目依赖|在项目目录下|
-|sudo npm run build|打包项目，生成dist目录|在项目目录下|
+|vue init webpack <pro_name>|创建vue项目|
+|cnpm install|安装项目依赖|在项目目录下|
+|npm run build|打包项目，生成dist目录|在项目目录下|
 
 
 ##其他问题
