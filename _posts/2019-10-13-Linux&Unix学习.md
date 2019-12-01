@@ -113,9 +113,7 @@ tags:
 	<tr><td>用户名</td><td>密码</td><td>用户组管理员账号</td><td>用户组所属账号</td></tr>
 </table>
 
-<a name=centos>
 <h2>CentOS</h2>
-</a>
 
 <table>
 	<tr><th>类别</th><th>特有命令</th><th>意义</th><th>e.g.</th></tr>

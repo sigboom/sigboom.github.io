@@ -702,5 +702,3 @@ fi
 ||vim \_\_init\_\_.py|import pymysql<br>pymysql.install\_as\_MySQLdb()|
 ||vim /usr/local/lib/python3.6/site-packages/django/db/backends/mysql/base.py|#if version < (1, 3, 13):<br>#    raise ImproperlyConfigured('mysqlclient 1.3.13 or newer is required; you have %s.' % Database.\_\_version\_\_)|
 ||vim /usr/local/lib/python3.6/site-packages/django/db/backends/mysql/operations.py|decode -> encode|
-
-
