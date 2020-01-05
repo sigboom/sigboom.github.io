@@ -28,24 +28,10 @@ tags:
 ###docker框架
 <table>
 	<tr align=center><th colspan="1">Public</td><th colspan="4">Docker net [daniel-net]</td></tr>
-	<tr>
-		<td colspan="2"><b>Vue-Nginx 前端管理服务器</b>
-			<table>
-				<tr align=center><th>前端框架</th><th>静态页面处理</th></tr>
-				<tr align="center"><td>Vue</td><td>Nginx</td></tr>
-			</table>
-		</td><td><b>Apache-Django 后台管理服务器</b>
-			<table>
-				<tr><th>动态部署</th><th>页面生成</th></tr>
-				<tr><td>Apache</td><td>Django</td></tr>
-			</table>
-		</td><td colspan="2"><b>数据库服务器</b>
-			<table>
-				<tr><th>缓存</th><td>Redis</td></tr>
-				<tr><th>磁盘</th><td>Mysql</td></tr>
-			</table>
-		</td>
-	</tr>
+	<tr><td colspan="2"><b>Vue-Nginx 前端管理服务器</b>
+		<table><tr align=center><th>前端框架</th><th>静态页面处理</th></tr><tr align="center"><td>Vue</td><td>Nginx</td></tr></table></td><td><b>Apache-Django 后台管理服务器</b>
+		<table><tr><th>动态部署</th><th>页面生成</th></tr><tr><td>Apache</td><td>Django</td></tr></table></td><td colspan="2"><b>数据库服务器</b>
+		<table><tr><th>缓存</th><td>Redis</td></tr><tr><th>磁盘</th><td>Mysql</td></tr></table></td></tr>
 	<tr align=center><th>BASE</th><td>vue-nginx</td><td>apache-django</td><td>redis</td><td>mysql</td></tr>
 	<tr><th colspan="5">各版本及实现功能</th></tr>
 	<tr align=center><td>V1.0.1</td><td>支持vue</td><td>支持HCJS</td><td colspan="2">支持本地服务</tr>
@@ -267,46 +253,57 @@ fi
 	}
 	```
 
+####前端页面搭建
+
+#####使用vue-cli进行搭建框架
+1. 开放前端开发端口，使用vue的热更新方便前端开发
+
+	```js
+	//修改config/index.js
+	dev:{
+	host: '0.0.0.0', //所有ip均可访问
+	post: 6170, //开放端口
+	}
+	//修改build/webpack.dev.conf.js
+	devServer: {
+		disableHostCheck:true, //添加该行
+	}
+	```
+2. 使用vue router进行页面跳转，组件化编程
+	<table>
+		<tr><th>组件结构</th></tr>
+		<tr><td>Header</td></tr>
+		<tr><td rowspan="2">Main</td><td rowspan="2">Index</td><td>Sign\_in</td></tr>
+		<tr><td>Sign\_up</td></tr>
+		<tr><td>Footer</td></tr>
+	</table>
+3. 安装vuex 登录token
+	
+	[Vuex配置](https://segmentfault.com/a/1190000015637039)
+4. 安装axios与后端交互
+
+
 ###Apache-Django虚拟机配置[django]
 1. 封装制作一级镜像[apache-django:BASE | REBASE]
 	<table>
-		<tr align=center>
-			<th colspan="10">基础镜像httpd:latest</th>
-		</tr><tr>
-			<th>配置内容</th><th>执行命令</th>
-		</tr><tr>
-			<td>更新apt-get</td><td>apt-get -y upgrade && apt-get update</td>
-		</tr><tr>
-			<td rowspan="4">python3前导包</td><td>apt-get install -y wgte gcc make build-essential</td>
-		</tr><tr>
-			<td>apt-get install -y  libncursesw5-dev libssl-dev </td>
-		</tr><tr>
-			<td>apt-get install -y libgdbm-dev libc6-dev libsqlite3-dev</td>
-		</tr><tr>
-			<td>apt-get install -y tk-dev libreadline-dev</td>
-		</tr><tr align=center>
-			<td>apache链接django包</td><td>apt-get install -y libapache2-mod-wsgi-py3</td>
-		</tr><tr align=center>
-			<td rowspan="6">安装python3</td><td>wget https://www.python.org/ftp/python/3.6.8/Python-3.6.8.tar.xz</td>
-		</tr><tr>
-			<td>tar xvf Python-3.6.8.tar.xz && cd Python-3.6.8</td>
-		</tr><tr>
-			<td>./configure && make && make install</td>
-		</tr><tr>
-			<td>rm -rf Python-3.6.8*</td>
-		</tr><tr>
-			<td>ln -s /usr/local/bin/python3 /usr/local/bin/python</td>
-		</tr><tr>
-			<td>ln -s /usr/local/bin/pip3 /usr/local/bin/pip</td>
-		</tr><tr>
-			<td rowspan="2">pip安装django</td><td>pip install --upgrade pip</td>
-		</tr><tr>
-			<td>pip install django pymysql django-redis</td>
-		</tr><tr>
-			<td>获取mod\_wsgi.so</td><td>cp mod_wsgi.so /usr/local/apache2/modules/</td>
-		</tr><tr align=center>
-			<th colspan="10">生成镜像apache-django:BASE</th>
-		</tr>
+		<tr align=center><th colspan="10">基础镜像httpd:latest</th></tr>
+		<tr><th>配置内容</th><th>执行命令</th></tr>
+		<tr><td>更新apt-get</td><td>apt-get -y upgrade && apt-get update</td></tr>
+		<tr><td rowspan="4">python3前导包</td><td>apt-get install -y wgte gcc make build-essential</td></tr>
+		<tr><td>apt-get install -y  libncursesw5-dev libssl-dev </td></tr>
+		<tr><td>apt-get install -y libgdbm-dev libc6-dev libsqlite3-dev</td></tr>
+		<tr><td>apt-get install -y tk-dev libreadline-dev</td></tr>
+		<tr align=center><td>apache链接django包</td><td>apt-get install -y libapache2-mod-wsgi-py3</td></tr>
+		<tr align=center><td rowspan="6">安装python3</td><td>wget https://www.python.org/ftp/python/3.6.8/Python-3.6.8.tar.xz</td></tr>
+		<tr><td>tar xvf Python-3.6.8.tar.xz && cd Python-3.6.8</td></tr>
+		<tr><td>./configure && make && make install</td></tr>
+		<tr><td>rm -rf Python-3.6.8*</td></tr>
+		<tr><td>ln -s /usr/local/bin/python3 /usr/local/bin/python</td></tr>
+		<tr><td>ln -s /usr/local/bin/pip3 /usr/local/bin/pip</td></tr>
+		<tr><td rowspan="2">pip安装django</td><td>pip install --upgrade pip</td></tr>
+		<tr><td>pip install django pymysql django-redis</td></tr>
+		<tr><td>获取mod\_wsgi.so</td><td>cp mod_wsgi.so /usr/local/apache2/modules/</td></tr>
+		<tr align=center><th colspan="10">生成镜像apache-django:BASE</th></tr>
 	</table>
 	镜像Dockerfile
 	
@@ -486,9 +483,9 @@ fi
 		create database `autosort_db` default character set utf8 collate utf8_general_ci;
 		 
 		use autosort_db;
-		 
+		/* 
 		DROP TABLE IF EXISTS `user`;
-		 
+		
 		CREATE TABLE `user` (
 		 `id` bigint(20) NOT NULL,
 		 `email` varchar(255) DEFAULT NULL,
@@ -497,6 +494,7 @@ fi
 		 `username` varchar(255) DEFAULT NULL,
 		 PRIMARY KEY (`id`)
 		) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+		*/
 		```
 	2. mysql初始化时将会执行/docker-entrypoint-initdb.d下sql文件
 	
@@ -537,14 +535,8 @@ fi
 ##命令使用
 ###本地命令
 <table>
-	<tr>
-		<th>实现功能</th>
-		<th>命令</th>
-	</tr>
-	<tr>
-		<td>登录远程服务器</td>
-		<td><code>ssh ${username}@${public_IP}</code></td>
-	</tr>
+	<tr><th>实现功能</th><th>命令</th></tr>
+	<tr><td>登录远程服务器</td><td><code>ssh ${username}@${public_IP}</code></td></tr>
 </table>
 
 ####Github命令
@@ -575,73 +567,48 @@ fi
 |apachectl|start\|restart\|stop||开启\|重启\|停止Apache服务|
 |curl|icanhazip.com|访问特定网址|获取公网IP|
 |nmap|-Pn -p[port] [IP]||查看端口状态与服务信息|
+|nohup|[command] &|将程序以忽略挂起信号的方式运行起来|终端无输出运行命令（ssh退出也不中断）|
+|nohup|[command] > [file] 2>&1 &|运行起来后输出到指定文件|后台运行命令（ssh退出也不中断）|
+|ctrl + z|||可以将一个正在前台执行的命令放到后台，并且处于暂停状态。
+|fg|||将后台任务切换到前台执行
+|bg|[num]|将选中的命令调出|将一个在后台暂停的命令，变成在后台继续执行
+|jobs|-l|显示所有任务的PID|查看后台运行的状态
+
 
 ####Docker命令
 **命令均以docker开头，必要时请添加权限提升命令sudo**
 
 <table>
-	<tr>
-		<th>命令</th><th>参数</th><th>参数意义</th><th>命令意义</th>
-	</tr><tr>
-		<td>--version</td><td></td><td></td><td>查看docker版本</td>
-	</tr><tr>
-		<td>run [image_name]</td><td>-dit | -d</td><td>在后台运行</td><td>从镜像启动容器</td>
-	</tr><tr>
-		<td></td><td>--name [container]</td><td>命名容器</td>
-	</tr><tr>
-		<td></td><td>--net [net]</td><td>定义容器网络</td>
-	</tr><tr>
-		<td></td><td>--ip [IP]</td><td>定义容器IP</td>
-	</tr><tr>
-		<td></td><td>-p [server_port]:[container_port]</td><td>定义端口映射</td>
-	</tr><tr>
-		<td></td><td>-v [server_path]:[container_path]</td><td>定义挂载映射</td>
-	</tr><tr>
-		<td>exec [container] [order]</td><td>-it</td><td>以终端方式运行</td><td>在容器中运行命令</td>
-	</tr><tr>
-		<td>search [image_name]</td><td></td><td></td><td>查找镜像文件</td>
-	</tr><tr>
-		<td>pull [image]</td><td></td><td></td><td>拉取镜像文件</td>
-	</tr><tr>
-		<td>rename [container] [new_container]</td><td></td><td></td><td>容器重命名</td>
-	</tr><tr>
-		<td>ps</td><td>-a</td><td>查看所有状态</td><td>默认为运行的容器</td>
-	</tr><tr>
-		<td>start | restart | stop | rm [container]</td><td></td><td></td><td>启动 | 重启 | 停止 | 删除 容器</td>
-	</tr><tr>
-		<td>rmi [image_name]</td><td></td><td></td><td>删除镜像</td>
-	</tr><tr>
-		<td>commit [container] [new_image]</td><td>-m [commit_msg]</td><td>提交标签</td><td>从容器创建镜像</td>
-	</tr><tr>
-		<td></td><td>-a [author]</td><td>标记创建者</td><td></td>
-	</tr><tr>
-		<td>tag [image_id] [image]:[image_tag]</td><td></td><td></td><td>修改镜像标签</td>
-	</tr>
+	<tr><th>命令</th><th>参数</th><th>参数意义</th><th>命令意义</th></tr>
+	<tr><td>--version</td><td></td><td></td><td>查看docker版本</td></tr>
+	<tr><td>run [image_name]</td><td>-dit | -d</td><td>在后台运行</td><td>从镜像启动容器</td></tr>
+	<tr><td></td><td>--name [container]</td><td>命名容器</td></tr>
+	<tr><td></td><td>--net [net]</td><td>定义容器网络</td></tr>
+	<tr><td></td><td>--ip [IP]</td><td>定义容器IP</td></tr>
+	<tr><td></td><td>-p [server_port]:[container_port]</td><td>定义端口映射</td></tr>
+	<tr><td></td><td>-v [server_path]:[container_path]</td><td>定义挂载映射</td></tr>
+	<tr><td>exec [container] [order]</td><td>-it</td><td>以终端方式运行</td><td>在容器中运行命令</td></tr>
+	<tr><td>search [image_name]</td><td></td><td></td><td>查找镜像文件</td></tr>
+	<tr><td>pull [image]</td><td></td><td></td><td>拉取镜像文件</td></tr>
+	<tr><td>rename [container] [new_container]</td><td></td><td></td><td>容器重命名</td></tr>
+	<tr><td>ps</td><td>-a</td><td>查看所有状态</td><td>默认为运行的容器</td></tr>
+	<tr><td>start | restart | stop | rm [container]</td><td></td><td></td><td>启动 | 重启 | 停止 | 删除 容器</td></tr>
+	<tr><td>rmi [image_name]</td><td></td><td></td><td>删除镜像</td></tr>
+	<tr><td>commit [container] [new_image]</td><td>-m [commit_msg]</td><td>提交标签</td><td>从容器创建镜像</td></tr>
+	<tr><td></td><td>-a [author]</td><td>标记创建者</td><td></td></tr>
+	<tr><td>tag [image_id] [image]:[image_tag]</td><td></td><td></td><td>修改镜像标签</td></tr>
 </table>
 
 #####Docker Management Commands
 <table>
-	<tr>
-		<th>命令</th>
-		<th>参数</th><th>子参数</th>
-		<th>子参数意义</th><th>参数意义</th>
-	</tr>
-	<tr>
-		<td>network</td><td>ls</td><td></td><td></td><td>列出本机网络</td>
-	</tr><tr>
-		<td></td><td>create [net]</td><td> -d bridge | host | none</td><td>网络模式</td><td>创建网络</td>
-	</tr><tr>
-		<td></td><td></td><td>--subnet [IP_head]/[IP_room]</td><td>设定网段</td>
-	</tr><tr>
-		<td></td><td>connect [net] [container]</td><td></td><td></td><td>将容器加入网络</td>
-	</tr><tr>
-		<td></td><td>disconnect [net] [container]</td><td></td><td></td><td>将容器断开网络</td>
-	</tr><tr>
-		<td></td><td>inspect [net]</td><td></td><td></td><td>查看网络内情况</td>
-	</tr><tr>
-		<td></td><td>rm [net]</td><td></td><td></td><td>删除网络</td>
-	</tr>
-
+	<tr><th>命令</th><th>参数</th><th>子参数</th><th>子参数意义</th><th>参数意义</th></tr>
+	<tr><td>network</td><td>ls</td><td></td><td></td><td>列出本机网络</td></tr>
+	<tr><td></td><td>create [net]</td><td> -d bridge | host | none</td><td>网络模式</td><td>创建网络</td></tr>
+	<tr><td></td><td></td><td>--subnet [IP_head]/[IP_room]</td><td>设定网段</td>
+	</tr><tr><td></td><td>connect [net] [container]</td><td></td><td></td><td>将容器加入网络</td></tr>
+	<tr><td></td><td>disconnect [net] [container]</td><td></td><td></td><td>将容器断开网络</td></tr>
+	<tr><td></td><td>inspect [net]</td><td></td><td></td><td>查看网络内情况</td></tr>
+	<tr><td></td><td>rm [net]</td><td></td><td></td><td>删除网络</td></tr>
 </table>
 
 #####Dockerfile
@@ -653,15 +620,23 @@ fi
 </table>
 
 ####mysql命令
-|级别|类别|命令|辅助命令|目的|
-|:-:|---|---|---|---|
-|系统|登录|mysql -h\<IP\> --port=\<server\_port\> -u\<user\_name> -p||登录数据库|
-|权限|用户管理|grant all privileges on \*.\* to '\<user\_name>'@'\<IP\>' identified by '\<password\>' with grant option;|flush privileges;|添加\<user\_name\>允许\<IP\>以\<password\>登录|
-|||drop user zhangsan@'[% \<IP\>]';||删除用户|
-||数据库|show databases;||打印数据库|
-|数据库|表|show tables;||打印表格信息|
-|表|查询|show columns from \<table\_name\>；||打印表头信息|
-|||select \<key\_name\> \<alias\>, \<key\_name\> from \<table\_name\> where \<condition\>||打印表内信息|
+<table>
+	<tr><th>级别</th><th>类别</th><th>命令</th><th>参数</th><th>参数意义</th><th>目的</th></tr>
+	<tr><td rowspan="8">系统</td><td rowspan="3">登录</td><td rowspan="3">mysql   </td><td bgcolor="yellow">-u[user] -p</td><td>以[user]登录</td><td rowspan="3">登录数据库</td></tr>
+	<tr><td>-h[IP]</td><td>服务器IP默认localhost</td></tr>
+	<tr><td>--port=[server_port]</td><td>服务器端口默认3306</td></tr>
+	<tr><td rowspan="4">用户管理</td><td colspan="3">create user '[user]' identified by '[passwd]';</td><td>创建用户[user]</td></tr>
+	<tr><td colspan="3">grant all privileges on *.* to '[user]'@'[IP]' identified by '[passwd]' with grant option;</td><td rowspan="2">授权[user]允许[IP]以[passwd]管理所有表并刷新</td></tr>
+	<tr><td colspan="3">flush privileges;</td></tr>
+	<tr><td colspan="3">drop user [user]@[IP];</td><td>删除用户</td></tr>
+	<tr><td>数据库</td><td colspan="3">show databases;</td><td>打印数据库列表</td></tr>
+	<tr><td rowspan="1">数据库</td><td>表</td><td colspan="3">show tables;</td><td>打印表格信息</td></tr>
+	<tr><td rowspan="4">表</td><td rowspan="4">查询</td><td>show columns</td><td bgcolor="yellow">from [table]</td><td></td><td>打印表头信息</td></tr>
+	<tr><td colspan="3">desc student</td><td>打印表结构</td></tr>
+	<tr><td rowspan="2">select [key] [alias], [key]</td><td bgcolor="yellow">from [table]</td><td></td><td rowspan="2">打印表内信息</td></tr>
+	<tr><td>where [condition]</td><td>约束条件</td></tr>
+	<tr><th>备注</th><td bgcolor="yellow">必要参数</td></tr>
+</table>
 
 ####pyenv命令
 |命令|意义|
@@ -702,3 +677,6 @@ fi
 ||vim \_\_init\_\_.py|import pymysql<br>pymysql.install\_as\_MySQLdb()|
 ||vim /usr/local/lib/python3.6/site-packages/django/db/backends/mysql/base.py|#if version < (1, 3, 13):<br>#    raise ImproperlyConfigured('mysqlclient 1.3.13 or newer is required; you have %s.' % Database.\_\_version\_\_)|
 ||vim /usr/local/lib/python3.6/site-packages/django/db/backends/mysql/operations.py|decode -> encode|
+|CSRF verification failed|403错误|axios.interceptors.request.use((config) =>{config.headers['X-Requested-With'] = 'XMLHttpRequest';let regex = /.*csrftoken=([^;.]*).*$/; // 用于从cookie中匹配 csrftoken值config.headers['X-CSRFToken'] = document.cookie.match(regex) === null ? null : document.cookie.match(regex)[1];return config});|
+|检查端口被占用|无法监听端口|$ **sudo** netstat -tunpl \| grep 80<br>$ **sudo** kill [pid]|
+
