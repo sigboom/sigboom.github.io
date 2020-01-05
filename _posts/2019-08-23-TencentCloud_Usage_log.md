@@ -14,6 +14,9 @@ tags:
 
 ##框架与步骤设计
 ###物理与开发环境
+
+
+
 <table>
 	<tr><th>配置种类</th><th>基础配置</th><th colspan="10">详细信息</th></tr>
 	<tr align="center">
@@ -68,6 +71,9 @@ tags:
 ||vim ~/.vimrc|打开syntax on<br>修改新标题文件补全|具体配置根据个人情况进行配置|
 
 ###服务器用户配置
+
+
+
 |配置内容|执行命令|执行操作内容|备注事项|
 |:-:|---|---|---|
 |用户密码|passwd [username]|<用户原密码><br><新密码><br><重复输入>|密码复杂度要求
@@ -121,7 +127,7 @@ tags:
     		include       mime.types;
     		default_type  application/octet-stream;
     		sendfile        on;
-   			keepalive_timeout  65;
+  				keepalive_timeout  65;
     		client_max_body_size   20m;
     		server {
         		listen       80;
@@ -616,7 +622,15 @@ fi
 	<tr><th>关键词</th><th>意义</th></tr>
 	<tr><td>FROM [image]</td><td>从该镜像生成镜像</td></tr>
 	<tr><td>MAINTAINER [author [email]]</td><td>为镜像添加作者(email)</td></tr>
-	<tr><td>COPY [File] [container-path]</td><td>从本机拷贝文件到容器</td></tr>
+	<tr><td>COPY [File][container-path]</td><td>从本机拷贝文件到容器</td></tr>
+</table>
+
+
+
+<table>
+
+<tr>
+
 </table>
 
 ####mysql命令
@@ -673,10 +687,12 @@ fi
 ||步骤：|cd Python-3.6.4/<br>./configure --prefix=\<sys_path=\usr\local\Python-3.6.4\><br>make && make install<br>ln -s <new_version_file> <old_version_file=/usr/local/bin/>|
 |https服务开启问题|服务器显示服务无效|同时监听80端口与443端口|
 |https服务资源加载问题|所有页面内部资源404|https服务页面所有资源的请求形式为https://资源URL，注意修改客户端文件结构与服务端文件结构的对应|
-|django加载mysql|运行有错误|
+|django加载mysql|运行有错误||
 ||vim \_\_init\_\_.py|import pymysql<br>pymysql.install\_as\_MySQLdb()|
 ||vim /usr/local/lib/python3.6/site-packages/django/db/backends/mysql/base.py|#if version < (1, 3, 13):<br>#    raise ImproperlyConfigured('mysqlclient 1.3.13 or newer is required; you have %s.' % Database.\_\_version\_\_)|
 ||vim /usr/local/lib/python3.6/site-packages/django/db/backends/mysql/operations.py|decode -> encode|
 |CSRF verification failed|403错误|axios.interceptors.request.use((config) =>{config.headers['X-Requested-With'] = 'XMLHttpRequest';let regex = /.*csrftoken=([^;.]*).*$/; // 用于从cookie中匹配 csrftoken值config.headers['X-CSRFToken'] = document.cookie.match(regex) === null ? null : document.cookie.match(regex)[1];return config});|
 |检查端口被占用|无法监听端口|$ **sudo** netstat -tunpl \| grep 80<br>$ **sudo** kill [pid]|
+|nginx配置文件检测|docker搭建nginx服务器时无法启动|docker run -it [images]<br>nginx -t|
+
 
