@@ -16,7 +16,6 @@ tags:
 ###物理与开发环境
 
 
-
 <table>
 	<tr><th>配置种类</th><th>基础配置</th><th colspan="10">详细信息</th></tr>
 	<tr align="center">
@@ -694,5 +693,4 @@ fi
 |CSRF verification failed|403错误|axios.interceptors.request.use((config) =>{config.headers['X-Requested-With'] = 'XMLHttpRequest';let regex = /.*csrftoken=([^;.]*).*$/; // 用于从cookie中匹配 csrftoken值config.headers['X-CSRFToken'] = document.cookie.match(regex) === null ? null : document.cookie.match(regex)[1];return config});|
 |检查端口被占用|无法监听端口|$ **sudo** netstat -tunpl \| grep 80<br>$ **sudo** kill [pid]|
 |nginx配置文件检测|docker搭建nginx服务器时无法启动|docker run -it [images]<br>nginx -t|
-
-
+|npm WARN notsup Not compatible with your operating system or architecture: fsevents@1.2.11|Vue Mac操作系统的工具包在Win或Linux系统下使用，会报警告，去除警告执行命令|$ npm install --no-optional| 
