@@ -11,6 +11,15 @@ tags:
     - 服务器
 ---
 
+#腾讯云使用记录
+##运维开发
+###网络
+<table>
+	<tr><td>端口号</td><td>端口作用</td></tr>
+	<tr><td>22</td><td>sshd服务端口</td></tr>	
+	<tr><td>53</td><td>DNS解析端口</td></tr>
+	<tr><td>80</td><td>web服务端口</td></tr>
+</table>
 
 ##框架与步骤设计
 ###物理与开发环境
@@ -537,6 +546,28 @@ fi
 
 	```
 
+###TensorFlow
+
+1. ubuntu-drivers devices
+	sudo apt install ubuntu-drivers-common
+
+
+	|CUDA|
+	|---|
+	|wget https://developer.nvidia.com/compute/cuda/10.0/Prod/	local_installers/cuda-repo-ubuntu1804-10-0-	local-10.0.130-410.48_1.0-1_amd64|
+	|mv cuda-repo-ubuntu1804-10-0-local-10.0.130-410.48_1.0-1_amd64 cudarepo-ubuntu1804-10-0-local-10.0.130-410.48_1.0-1_amd64.deb
+	|sudo dpkg -i cuda-repo-ubuntu1804-10-0-local-10.0.130-410.48_1.0-1_amd64.deb
+	|sudo apt-key add /var/cuda-repo-10-0-local-10.0.130-410.48/7fa2af80.pub
+	|sudo apt-get update
+	|sudo apt-get install cuda
+	|虚拟机无实际显卡无法安装|
+	|Cudann
+
+2. tensorboard 
+	远程连接并在本地通过127.0.0.1访问
+	```sh
+	ssh -L 16006:127.0.0.1:6006 daniel@TencentCloud
+	```
 ##命令使用
 ###本地命令
 <table>
@@ -578,6 +609,7 @@ fi
 |fg|||将后台任务切换到前台执行
 |bg|[num]|将选中的命令调出|将一个在后台暂停的命令，变成在后台继续执行
 |jobs|-l|显示所有任务的PID|查看后台运行的状态
+|lspci| ||检查显卡
 
 
 ####Docker命令
@@ -602,6 +634,7 @@ fi
 	<tr><td>commit [container] [new_image]</td><td>-m [commit_msg]</td><td>提交标签</td><td>从容器创建镜像</td></tr>
 	<tr><td></td><td>-a [author]</td><td>标记创建者</td><td></td></tr>
 	<tr><td>tag [image_id] [image]:[image_tag]</td><td></td><td></td><td>修改镜像标签</td></tr>
+	<tr><td>save [image]</td><td>-o [tar_name].tar</td><td>保存镜像的文件名</td><td>导出镜像</td></tr>
 </table>
 
 #####Docker Management Commands
@@ -624,18 +657,10 @@ fi
 	<tr><td>COPY [File][container-path]</td><td>从本机拷贝文件到容器</td></tr>
 </table>
 
-
-
-<table>
-
-<tr>
-
-</table>
-
 ####mysql命令
 <table>
 	<tr><th>级别</th><th>类别</th><th>命令</th><th>参数</th><th>参数意义</th><th>目的</th></tr>
-	<tr><td rowspan="8">系统</td><td rowspan="3">登录</td><td rowspan="3">mysql   </td><td bgcolor="yellow">-u[user] -p</td><td>以[user]登录</td><td rowspan="3">登录数据库</td></tr>
+	<tr><td rowspan="8">系统</td><td rowspan="3">登录</td><td rowspan="3">mysql</td><td bgcolor="yellow">-u[user] -p</td><td>以[user]登录</td><td rowspan="3">登录数据库</td></tr>
 	<tr><td>-h[IP]</td><td>服务器IP默认localhost</td></tr>
 	<tr><td>--port=[server_port]</td><td>服务器端口默认3306</td></tr>
 	<tr><td rowspan="4">用户管理</td><td colspan="3">create user '[user]' identified by '[passwd]';</td><td>创建用户[user]</td></tr>
@@ -643,11 +668,19 @@ fi
 	<tr><td colspan="3">flush privileges;</td></tr>
 	<tr><td colspan="3">drop user [user]@[IP];</td><td>删除用户</td></tr>
 	<tr><td>数据库</td><td colspan="3">show databases;</td><td>打印数据库列表</td></tr>
+	
 	<tr><td rowspan="1">数据库</td><td>表</td><td colspan="3">show tables;</td><td>打印表格信息</td></tr>
-	<tr><td rowspan="4">表</td><td rowspan="4">查询</td><td>show columns</td><td bgcolor="yellow">from [table]</td><td></td><td>打印表头信息</td></tr>
-	<tr><td colspan="3">desc student</td><td>打印表结构</td></tr>
+	
+	<tr><td rowspan="9">表</td><td rowspan="1">插入</td><td rowspan="1">insert</td><td bgcolor="yellow">into [table] ({field...}) values ([value...])</td><td>无{field...}插入所有数据</td><td>指定列插入数据</td></tr>
+	<tr><td rowspan="2">删除</td><td rowspan="2">delete<td bgcolor="yellow">from [table]</td><td>删除全部</td><td rowspan="2">删去表内信息</td></tr>
+	<tr><td>where [condition]</td><td>约束条件</td></tr>
+	<tr><td rowspan="2">修改</td><td rowspan="2">update</td><td bgcolor="yellow">[table] set ({field = value}..)</td><td>修改field的值为value</td><td rowspan="2">修改表格数据</td></tr>
+	<tr><td>where [condition]</td><td>约束条件</td></tr>
+	<tr><td rowspan="4">查询</td><td>show columns</td><td bgcolor="yellow">from [table]</td><td></td><td>打印表头信息</td></tr>
+	<tr><td colspan="3">desc [table]</td><td>打印表结构</td></tr>
 	<tr><td rowspan="2">select [key] [alias], [key]</td><td bgcolor="yellow">from [table]</td><td></td><td rowspan="2">打印表内信息</td></tr>
 	<tr><td>where [condition]</td><td>约束条件</td></tr>
+	
 	<tr><th>备注</th><td bgcolor="yellow">必要参数</td></tr>
 </table>
 
@@ -694,3 +727,5 @@ fi
 |检查端口被占用|无法监听端口|$ **sudo** netstat -tunpl \| grep 80<br>$ **sudo** kill [pid]|
 |nginx配置文件检测|docker搭建nginx服务器时无法启动|docker run -it [images]<br>nginx -t|
 |npm WARN notsup Not compatible with your operating system or architecture: fsevents@1.2.11|Vue Mac操作系统的工具包在Win或Linux系统下使用，会报警告，去除警告执行命令|$ npm install --no-optional| 
+|错误记录：(fields.E304) Reverse accessor for '' clashes with reverse accessor for ''.|两个属性都关联一个外键 应该加一个related_name|访问外键时使用related_name进行访问
+
