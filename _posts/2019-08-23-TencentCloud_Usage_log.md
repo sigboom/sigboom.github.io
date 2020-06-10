@@ -728,4 +728,4 @@ fi
 |nginx配置文件检测|docker搭建nginx服务器时无法启动|docker run -it [images]<br>nginx -t|
 |npm WARN notsup Not compatible with your operating system or architecture: fsevents@1.2.11|Vue Mac操作系统的工具包在Win或Linux系统下使用，会报警告，去除警告执行命令|$ npm install --no-optional| 
 |错误记录：(fields.E304) Reverse accessor for '' clashes with reverse accessor for ''.|两个属性都关联一个外键 应该加一个related_name|访问外键时使用related_name进行访问
-
+|docker启动不起来|查看相关服务器配置文件|
