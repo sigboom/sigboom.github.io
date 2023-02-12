@@ -74,7 +74,7 @@ netease_comment: false
 # Sidebar settings
 sidebar: true                           # whether or not using Sidebar.
 sidebar-about-description: "The power of thinking is the strongest power.<br>思考是最强大的力量"
-sidebar-avatar: /img/Daniel_photo.jpeg      # use absolute URL, seeing it's used in both `/` and `/about/`
+sidebar-avatar: /img/dani.jpeg      # use absolute URL, seeing it's used in both `/` and `/about/`
 
 
 # Featured Tags
