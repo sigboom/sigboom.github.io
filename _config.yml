@@ -14,7 +14,7 @@ future: true
 # SNS settings
 RSS: false
 # weibo_username:
-# zhihu_username:
+zhihu_username: donidaniel
 github_username:    sigboom
 # twitter_username:
 # linkedin_username:  firstname-lastname-idxxxx
